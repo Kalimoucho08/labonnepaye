@@ -1,0 +1,3369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Bonne Paye - Assistant Banquier</title>
+    <style>
+        /* RESET et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .dark-mode header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        /* BOUTONS */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+        
+        .btn-outline:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* NAVIGATION */
+        .nav-tabs {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .dark-mode .nav-tabs {
+            background-color: #2c2c2c;
+        }
+        
+        .nav-tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-right: 1px solid #eee;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .dark-mode .nav-tab {
+            border-right: 1px solid #444;
+        }
+        
+        .nav-tab:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dark-mode .nav-tab:hover {
+            background-color: #3a3a3a;
+        }
+        
+        .nav-tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* ÉCRANS (sections) */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* CARTES */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .dark-mode .card {
+            background-color: #2c2c2c;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .dark-mode .card-header {
+            border-bottom-color: #444;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .dark-mode .card-title {
+            color: #e0e0e0;
+        }
+        
+        /* FORMULAIRES */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .dark-mode label {
+            color: #e0e0e0;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .dark-mode input, .dark-mode select, .dark-mode textarea {
+            background-color: #3a3a3a;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* MESSAGES */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-info {
+            background-color: #e1f5fe;
+            color: #0277bd;
+            border-left: 4px solid #0277bd;
+        }
+        
+        .dark-mode .alert-info {
+            background-color: #0d3c61;
+            color: #81d4fa;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .dark-mode .alert-success {
+            background-color: #1b5e20;
+            color: #a5d6a7;
+        }
+        
+        .alert-warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border-left: 4px solid #ef6c00;
+        }
+        
+        .dark-mode .alert-warning {
+            background-color: #e65100;
+            color: #ffcc80;
+        }
+        
+        .alert-danger {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .dark-mode .alert-danger {
+            background-color: #b71c1c;
+            color: #ef9a9a;
+        }
+        
+        /* TABLEAUX */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .dark-mode th, .dark-mode td {
+            border-bottom-color: #444;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .dark-mode th {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .dark-mode tr:hover {
+            background-color: #3a3a3a;
+        }
+        
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .badge-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .badge-info {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* UTILITAIRES */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .p-1 { padding: 0.5rem; }
+        .p-2 { padding: 1rem; }
+        .p-3 { padding: 1.5rem; }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .dark-mode .nav-tab {
+                border-bottom: 1px solid #444;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>🎲 La Bonne Paye</h1>
+            <p>Assistant banquier - Gestion des prêts, épargne et Jour de Paye</p>
+        </div>
+        <div class="controls">
+            <button id="theme-toggle" class="btn btn-outline">
+                🌙 Mode sombre
+            </button>
+            <button id="save-btn" class="btn btn-success">
+                💾 Sauvegarder
+            </button>
+            <button id="load-btn" class="btn btn-primary">
+                📂 Charger
+            </button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-screen="setup">⚙️ Paramétrage</div>
+            <div class="nav-tab" data-screen="players">👥 Joueurs</div>
+            <div class="nav-tab" data-screen="dashboard">📊 Tableau de bord</div>
+            <div class="nav-tab" data-screen="payday">💰 Jour de Paye</div>
+            <div class="nav-tab" data-screen="history">📜 Historique</div>
+            <div class="nav-tab" data-screen="export">📤 Export/Import</div>
+        </div>
+        
+        <!-- ÉCRAN PARAMÉTRAGE -->
+        <section id="screen-setup" class="screen active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Paramétrage de la partie</h2>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>📋 Information :</strong> Configurez les règles de la partie selon l'édition utilisée (francs, euros ou personnalisée).
+                </div>
+                
+                <div class="form-group">
+                    <label for="game-name">Nom de la partie</label>
+                    <input type="text" id="game-name" placeholder="Ex: Partie familiale du 15 avril">
+                </div>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3 class="card-title mb-2">Presets rapides</h3>
+                        <div class="form-group">
+                            <button id="preset-francs" class="btn btn-outline mb-1" style="width: 100%;">
+                                🇫🇷 Ancienne version Francs
+                            </button>
+                            <button id="preset-euros" class="btn btn-outline mb-1" style="width: 100%;">
+                                🇪🇺 Version Euros
+                            </button>
+                            <button id="preset-custom" class="btn btn-outline" style="width: 100%;">
+                                ⚙️ Personnalisé
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">Règles de base</h3>
+                        <div class="form-group">
+                            <label for="currency">Devise affichée</label>
+                            <select id="currency">
+                                <option value="francs">Francs (₣)</option>
+                                <option value="euros">Euros (€)</option>
+                                <option value="custom">Texte libre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="payday-salary">Salaire du Jour de Paye</label>
+                            <input type="number" id="payday-salary" min="0" step="50" value="650">
+                        </div>
+                        <div class="form-group">
+                            <label for="loan-unit">Montant d'une tranche de prêt</label>
+                            <input type="number" id="loan-unit" min="0" step="100" value="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">Taux et frais</h3>
+                        <div class="form-group">
+                            <label for="savings-interest">Taux d'intérêt du livret (%)</label>
+                            <input type="number" id="savings-interest" min="0" max="100" step="0.5" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="loan-interest">Taux d'intérêt du prêt (%)</label>
+                            <input type="number" id="loan-interest" min="0" max="100" step="0.5" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="withdrawal-fee">Frais de retrait du livret</label>
+                            <input type="number" id="withdrawal-fee" min="0" step="10" value="100">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">Paramètres avancés</h3>
+                        <div class="form-group">
+                            <label for="deposit-deadline">Dépôt autorisé jusqu'à la case/jour</label>
+                            <input type="number" id="deposit-deadline" min="1" max="31" value="23">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="loan-repayment-payday-only">
+                                Remboursement prêt uniquement au Jour de Paye
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="deposit-after-deadline">
+                                Dépôt autorisé après date limite (pas d'intérêts)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button id="save-settings" class="btn btn-success btn-lg">
+                        ✅ Enregistrer les paramètres et commencer
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ÉCRAN JOUEURS -->
+        <section id="screen-players" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Gestion des joueurs</h2>
+                    <button id="add-player-btn" class="btn btn-primary">
+                        👤 Ajouter un joueur
+                    </button>
+                </div>
+                
+                <div id="players-list" class="mb-3">
+                    <!-- Liste des joueurs générée dynamiquement -->
+                    <div class="alert alert-info">
+                        Aucun joueur n'a été créé. Commencez par ajouter des joueurs.
+                    </div>
+                </div>
+                
+                <div id="player-form-container" style="display: none;">
+                    <div class="card">
+                        <h3 class="card-title mb-2">Nouveau joueur</h3>
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="player-name">Nom du joueur</label>
+                                <input type="text" id="player-name" placeholder="Ex: Papa, Maman, Émilie">
+                            </div>
+                            <div class="form-group">
+                                <label for="player-color">Couleur</label>
+                                <input type="color" id="player-color" value="#3498db">
+                            </div>
+                            <div class="form-group">
+                                <label for="player-cash">Argent liquide initial</label>
+                                <input type="number" id="player-cash" min="0" step="50" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="player-savings">Épargne initiale</label>
+                                <input type="number" id="player-savings" min="0" step="50" value="0">
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <button id="cancel-player-btn" class="btn btn-outline mr-1">
+                                Annuler
+                            </button>
+                            <button id="save-player-btn" class="btn btn-success">
+                                Enregistrer le joueur
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ÉCRAN TABLEAU DE BORD -->
+        <section id="screen-dashboard" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Tableau de bord global</h2>
+                    <div>
+                        <span id="total-players" class="badge badge-success">0 joueurs</span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mb-3">
+                    <strong>💡 Astuce :</strong> Cliquez sur un joueur pour accéder à sa fiche détaillée et effectuer des actions rapides.
+                </div>
+                
+                <div id="dashboard-stats" class="grid mb-3">
+                    <!-- Statistiques générées dynamiquement -->
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title mb-2">Aperçu des joueurs</h3>
+                    <table id="players-overview">
+                        <thead>
+                            <tr>
+                                <th>Joueur</th>
+                                <th>Liquide</th>
+                                <th>Épargne</th>
+                                <th>Dette</th>
+                                <th>Intérêts dus</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Données générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="grid mt-3">
+                    <div class="card">
+                        <h3 class="card-title mb-2">Actions rapides</h3>
+                        <div class="form-group">
+                            <label for="quick-action-player">Sélectionner un joueur</label>
+                            <select id="quick-action-player">
+                                <option value="">-- Choisir un joueur --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-action-type">Type d'action</label>
+                            <select id="quick-action-type">
+                                <option value="salary">💵 Verser salaire</option>
+                                <option value="loan">🏦 Accorder prêt</option>
+                                <option value="repayment">📉 Remboursement prêt</option>
+                                <option value="deposit">💰 Dépôt épargne</option>
+                                <option value="withdrawal">🏧 Retrait épargne</option>
+                                <option value="bill">🧾 Paiement facture</option>
+                                <option value="gain">🎁 Gain</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-action-amount">Montant</label>
+                            <input type="number" id="quick-action-amount" min="0" step="50">
+                        </div>
+                        <button id="execute-quick-action" class="btn btn-primary" style="width: 100%;">
+                            ⚡ Exécuter l'action
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">Résumé de la banque</h3>
+                        <div id="bank-summary">
+                            <!-- Résumé généré dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ÉCRAN JOUR DE PAYE -->
+        <section id="screen-payday" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">💰 Assistant Jour de Paye (case 31)</h2>
+                    <div>
+                        <span id="payday-stats" class="badge badge-info">Case 31 - Plateau circulaire</span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mb-3">
+                    <h4>🎯 Séquence du Jour de Paye</h4>
+                    <p>Quand un joueur arrive sur la <strong>case 31 "Jour de Paye"</strong> du plateau circulaire, le banquier doit effectuer cette séquence :</p>
+                    <ol>
+                        <li><strong>Encaisser le salaire</strong> (montant configuré)</li>
+                        <li><strong>Toucher les intérêts d'épargne</strong> (10% du livret)</li>
+                        <li><strong>Payer les intérêts des prêts</strong> (10% de la dette)</li>
+                        <li><strong>Rembourser éventuellement</strong> une partie ou totalité des prêts</li>
+                    </ol>
+                    <p><strong>⚠️ Important :</strong> Les joueurs avancent à des vitesses différentes. Chaque joueur a sa propre position sur le plateau (0-31).</p>
+                    <p>Cliquez sur <strong>"Payer le Jour de Paye"</strong> pour un joueur quand il arrive sur la case 31.</p>
+                </div>
+                
+                <!-- WIZARD (caché par défaut, affiché quand on clique sur un joueur) -->
+                <div id="payday-wizard" style="display: none;">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span id="wizard-player-name">Joueur</span> - Jour de Paye
+                            </h3>
+                            <div>
+                                <span id="wizard-step-indicator" class="badge badge-warning">Étape 1/7</span>
+                            </div>
+                        </div>
+                        
+                        <div id="wizard-steps">
+                            <!-- Étape 1: Résumé -->
+                            <div id="wizard-step-1" class="wizard-step">
+                                <div class="card">
+                                    <h4 class="card-title">📊 Étape 1: Résumé avant paie</h4>
+                                    <div id="wizard-summary-before" class="mb-3">
+                                        <!-- Résumé généré dynamiquement -->
+                                    </div>
+                                    <p class="alert alert-info">Vérifiez l'état du joueur avant de procéder au paiement du salaire.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Étape 2: Salaire -->
+                            <div id="wizard-step-2" class="wizard-step" style="display: none;">
+                                <div class="card">
+                                    <h4 class="card-title">💵 Étape 2: Paiement du salaire</h4>
+                                    <div class="mb-3">
+                                        <p>Salaire standard: <strong id="wizard-salary-amount">650</strong></p>
+                                        <div class="form-group">
+                                            <label for="wizard-salary-custom">Montant personnalisé (optionnel)</label>
+                                            <input type="number" id="wizard-salary-custom" min="0" step="50" placeholder="Laisser vide pour le montant standard">
+                                        </div>
+                                    </div>
+                                    <p class="alert alert-success">Le salaire sera ajouté à la liquidité du joueur.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Étape 3: Intérêts d'épargne -->
+                            <div id="wizard-step-3" class="wizard-step" style="display: none;">
+                                <div class="card">
+                                    <h4 class="card-title">💰 Étape 3: Intérêts d'épargne</h4>
+                                    <div class="mb-3">
+                                        <p>Épargne actuelle: <strong id="wizard-savings-amount">0</strong></p>
+                                        <p>Taux d'intérêt: <strong id="wizard-savings-rate">10%</strong></p>
+                                        <p>Intérêts calculés: <strong id="wizard-savings-interest">0</strong></p>
+                                        <div class="form-group">
+                                            <label for="wizard-savings-adjust">Ajustement (optionnel)</label>
+                                            <input type="number" id="wizard-savings-adjust" min="0" step="10" placeholder="Laisser vide pour le calcul automatique">
+                                        </div>
+                                    </div>
+                                    <p class="alert alert-info">Les intérêts d'épargne sont ajoutés au livret du joueur.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Étape 4: Intérêts de prêt -->
+                            <div id="wizard-step-4" class="wizard-step" style="display: none;">
+                                <div class="card">
+                                    <h4 class="card-title">🏦 Étape 4: Intérêts de prêt</h4>
+                                    <div class="mb-3">
+                                        <p>Dette actuelle: <strong id="wizard-debt-amount">0</strong></p>
+                                        <p>Taux d'intérêt: <strong id="wizard-loan-rate">10%</strong></p>
+                                        <p>Intérêts calculés: <strong id="wizard-loan-interest">0</strong></p>
+                                        <div class="form-group">
+                                            <label for="wizard-loan-adjust">Ajustement (optionnel)</label>
+                                            <input type="number" id="wizard-loan-adjust" min="0" step="10" placeholder="Laisser vide pour le calcul automatique">
+                                        </div>
+                                    </div>
+                                    <p class="alert alert-warning">Les intérêts de prêt sont déduits de la liquidité du joueur.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Étape 5: Remboursement -->
+                            <div id="wizard-step-5" class="wizard-step" style="display: none;">
+                                <div class="card">
+                                    <h4 class="card-title">📉 Étape 5: Remboursement du prêt</h4>
+                                    <div class="mb-3">
+                                        <p>Dette après intérêts: <strong id="wizard-debt-after-interest">0</strong></p>
+                                        <p>Liquidité disponible: <strong id="wizard-cash-after-interest">0</strong></p>
+                                        <div class="form-group">
+                                            <label for="wizard-repayment-amount">Montant à rembourser</label>
+                                            <input type="number" id="wizard-repayment-amount" min="0" step="50" value="0">
+                                            <small class="text-muted">Mettez 0 pour ne pas rembourser maintenant.</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <button class="btn btn-outline btn-sm mr-1 wizard-repayment-full">Rembourser tout</button>
+                                            <button class="btn btn-outline btn-sm mr-1 wizard-repayment-half">Rembourser moitié</button>
+                                            <button class="btn btn-outline btn-sm wizard-repayment-min">Rembourser minimum</button>
+                                        </div>
+                                    </div>
+                                    <p class="alert alert-info">Le remboursement réduit la dette et la liquidité.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Étape 6: Nouvel état -->
+                            <div id="wizard-step-6" class="wizard-step" style="display: none;">
+                                <div class="card">
+                                    <h4 class="card-title">📈 Étape 6: Nouvel état financier</h4>
+                                    <div id="wizard-summary-after" class="mb-3">
+                                        <!-- Résumé généré dynamiquement -->
+                                    </div>
+                                    <p class="alert alert-success">Vérifiez les nouveaux soldes avant de clôturer.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Étape 7: Clôture -->
+                            <div id="wizard-step-7" class="wizard-step" style="display: none;">
+                                <div class="card">
+                                    <h4 class="card-title">✅ Étape 7: Clôture du Jour de Paye</h4>
+                                    <div class="mb-3">
+                                        <p>Le Jour de Paye sera enregistré pour <strong id="wizard-player-name-final">ce joueur</strong>.</p>
+                                        <div class="form-group">
+                                            <label for="wizard-comments">Commentaires (optionnel)</label>
+                                            <textarea id="wizard-comments" rows="2" placeholder="Notes sur ce Jour de Paye..."></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>
+                                                <input type="checkbox" id="wizard-confirm" checked>
+                                                Je confirme que toutes les opérations sont correctes
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <p class="alert alert-info">Clôturer enregistrera toutes les opérations et retournera à la liste des joueurs.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress mb-3" style="height: 8px; background-color: #eee; border-radius: 4px; overflow: hidden;">
+                            <div id="wizard-progress-bar" style="height: 100%; width: 14%; background-color: #3498db; transition: width 0.3s;"></div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="wizard-prev" class="btn btn-outline mr-1" disabled>
+                                ◀ Précédent
+                            </button>
+                            <button id="wizard-next" class="btn btn-primary">
+                                Suivant ▶
+                            </button>
+                            <button id="wizard-complete" class="btn btn-success ml-1" style="display: none;">
+                                ✅ Terminer le Jour de Paye
+                            </button>
+                            <button id="wizard-cancel" class="btn btn-danger ml-1">
+                                ❌ Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- LISTE DES JOUEURS (affichée par défaut) -->
+                <div id="payday-players-list">
+                    <h3 class="card-title mb-2">👥 Joueurs à payer</h3>
+                    <div id="players-payday-grid" class="mb-3">
+                        <!-- Liste générée dynamiquement -->
+                        <div class="alert alert-warning">
+                            Aucun joueur n'a été créé. Allez d'abord dans l'onglet "Joueurs".
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <h3 class="card-title">📊 Suivi des positions</h3>
+                    <div class="alert alert-warning">
+                        <p><strong>Plateau circulaire (31 cases) :</strong></p>
+                        <ul>
+                            <li>Chaque joueur avance à sa propre vitesse (dé)</li>
+                            <li>La case 31 est le "Jour de Paye"</li>
+                            <li>Après la case 31, on recommence à la case 1</li>
+                            <li>Pas de notion de "mois" global - chaque joueur a son propre cycle</li>
+                        </ul>
+                        <p><strong>Dans cette application :</strong> Cliquez sur "Payer le Jour de Paye" quand un joueur arrive sur la case 31. L'application ne suit pas les positions sur le plateau.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ÉCRAN HISTORIQUE -->
+        <section id="screen-history" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Historique des opérations</h2>
+                    <div>
+                        <button id="filter-history" class="btn btn-outline btn-sm">
+                            🔍 Filtrer
+                        </button>
+                        <button id="clear-history" class="btn btn-danger btn-sm">
+                            🗑️ Tout effacer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid mb-3">
+                    <div class="form-group">
+                        <label for="filter-player">Filtrer par joueur</label>
+                        <select id="filter-player">
+                            <option value="">Tous les joueurs</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-type">Filtrer par type</label>
+                        <select id="filter-type">
+                            <option value="">Tous les types</option>
+                            <option value="salary">Salaire</option>
+                            <option value="loan">Prêt</option>
+                            <option value="repayment">Remboursement</option>
+                            <option value="deposit">Dépôt épargne</option>
+                            <option value="withdrawal">Retrait épargne</option>
+                            <option value="interest">Intérêts</option>
+                            <option value="bill">Facture</option>
+                            <option value="gain">Gain</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-cycle">Filtrer par cycle (passage case 31)</label>
+                        <select id="filter-cycle">
+                            <option value="">Tous les cycles</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <table id="operations-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Cycle</th>
+                            <th>Joueur</th>
+                            <th>Opération</th>
+                            <th>Montant</th>
+                            <th>Commentaire</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Données générées dynamiquement -->
+                    </tbody>
+                </table>
+                
+                <div id="history-summary" class="text-center mt-3">
+                    <!-- Résumé généré dynamiquement -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- ÉCRAN EXPORT/IMPORT -->
+        <section id="screen-export" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Export et Import de données</h2>
+                </div>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3 class="card-title mb-2">💾 Sauvegarde locale</h3>
+                        <div class="alert alert-info mb-2">
+                            Vos données sont automatiquement sauvegardées dans le navigateur.
+                        </div>
+                        <div class="form-group">
+                            <label for="backup-name">Nom de la sauvegarde</label>
+                            <input type="text" id="backup-name" placeholder="Ex: Sauvegarde du 15 avril">
+                        </div>
+                        <button id="create-backup" class="btn btn-success mb-1" style="width: 100%;">
+                            📥 Créer une sauvegarde manuelle
+                        </button>
+                        <button id="restore-backup" class="btn btn-primary" style="width: 100%;">
+                            📤 Restaurer une sauvegarde
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">📄 Export JSON</h3>
+                        <div class="alert alert-warning mb-2">
+                            Exportez toutes les données de la partie au format JSON.
+                        </div>
+                        <textarea id="json-export" rows="6" readonly placeholder="Les données JSON apparaîtront ici..."></textarea>
+                        <button id="copy-json" class="btn btn-outline mt-1" style="width: 100%;">
+                            📋 Copier le JSON
+                        </button>
+                        <button id="download-json" class="btn btn-success mt-1" style="width: 100%;">
+                            ⬇️ Télécharger JSON
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">📊 Export CSV</h3>
+                        <div class="alert alert-info mb-2">
+                            Exportez les opérations au format CSV pour Excel/Tableur.
+                        </div>
+                        <button id="export-csv-operations" class="btn btn-primary mb-1" style="width: 100%;">
+                            📈 Exporter les opérations (CSV)
+                        </button>
+                        <button id="export-csv-players" class="btn btn-primary" style="width: 100%;">
+                            👥 Exporter les joueurs (CSV)
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title mb-2">⬆️ Import JSON</h3>
+                        <div class="alert alert-danger mb-2">
+                            <strong>Attention :</strong> L'import remplacera toutes les données actuelles.
+                        </div>
+                        <div class="form-group">
+                            <label for="json-import">Coller le JSON ici</label>
+                            <textarea id="json-import" rows="6" placeholder='{"meta": {...}, "rules": {...}}'></textarea>
+                        </div>
+                        <button id="import-json" class="btn btn-danger" style="width: 100%;">
+                            ⚡ Importer les données
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- MODAL POUR LES MESSAGES -->
+    <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="card" style="max-width: 500px; margin: 20px;">
+            <div class="card-header">
+                <h3 id="modal-title" class="card-title">Titre</h3>
+                <button id="modal-close" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            <div id="modal-content" class="p-3">
+                Contenu du modal
+            </div>
+            <div class="text-right p-3">
+                <button id="modal-cancel" class="btn btn-outline mr-1">Annuler</button>
+                <button id="modal-confirm" class="btn btn-primary">Confirmer</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ==============================================
+        // MODULES INTERNES DE L'APPLICATION
+        // ==============================================
+        
+        /* MODULE CONFIG - Paramètres de partie et presets */
+        const Config = {
+            presets: {
+                francs: {
+                    name: "Ancienne version Francs",
+                    currency: "francs",
+                    paydaySalary: 6500,
+                    loanUnit: 10000,
+                    savingsInterestRate: 0.10,
+                    loanInterestRate: 0.10,
+                    savingsWithdrawalFee: 1000,
+                    savingsDepositDeadlineDay: 23,
+                    loanRepaymentOnlyOnPayday: true,
+                    depositAfterDeadline: false
+                },
+                euros: {
+                    name: "Version Euros",
+                    currency: "euros",
+                    paydaySalary: 650,
+                    loanUnit: 1000,
+                    savingsInterestRate: 0.10,
+                    loanInterestRate: 0.10,
+                    savingsWithdrawalFee: 100,
+                    savingsDepositDeadlineDay: 23,
+                    loanRepaymentOnlyOnPayday: true,
+                    depositAfterDeadline: false
+                },
+                custom: {
+                    name: "Personnalisé",
+                    currency: "euros",
+                    paydaySalary: 650,
+                    loanUnit: 1000,
+                    savingsInterestRate: 0.10,
+                    loanInterestRate: 0.10,
+                    savingsWithdrawalFee: 100,
+                    savingsDepositDeadlineDay: 23,
+                    loanRepaymentOnlyOnPayday: false,
+                    depositAfterDeadline: true
+                }
+            },
+            
+            getDefaultRules() {
+                return {
+                    currency: "euros",
+                    paydaySalary: 650,
+                    loanUnit: 1000,
+                    savingsInterestRate: 0.10,
+                    loanInterestRate: 0.10,
+                    savingsWithdrawalFee: 100,
+                    savingsDepositDeadlineDay: 23,
+                    loanRepaymentOnlyOnPayday: true,
+                    depositAfterDeadline: false,
+                    currencySymbol: "€"
+                };
+            },
+            
+            applyPreset(presetName) {
+                const preset = this.presets[presetName];
+                if (!preset) return this.getDefaultRules();
+                
+                const rules = { ...preset };
+                rules.currencySymbol = preset.currency === "francs" ? "₣" : "€";
+                return rules;
+            }
+        };
+        
+        /* MODULE STATE - Gestion de l'état global */
+        const State = {
+            game: {
+                meta: {
+                    title: "Nouvelle partie",
+                    createdAt: new Date().toISOString(),
+                    version: 1,
+                    lastModified: new Date().toISOString()
+                },
+                rules: Config.getDefaultRules(),
+                players: [],
+                operations: [],
+                bank: { pot: 0 },
+                ui: {
+                    selectedPlayerId: null,
+                    currentPaydayPlayerId: null,
+                    currentPaydayStep: 1
+                }
+            },
+            
+            getGame() {
+                return this.game;
+            },
+            
+            setGame(newGame) {
+                this.game = newGame;
+                this.saveToStorage();
+            },
+            
+            updateRules(rules) {
+                this.game.rules = { ...this.game.rules, ...rules };
+                this.game.meta.lastModified = new Date().toISOString();
+                this.saveToStorage();
+            },
+            
+            addPlayer(player) {
+                const newPlayer = {
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                    name: player.name || "Joueur sans nom",
+                    color: player.color || "#3498db",
+                    cash: player.cash || 0,
+                    savings: player.savings || 0,
+                    debt: player.debt || 0,
+                    loanCards: player.loanCards || 0,
+                    pendingInterest: player.pendingInterest || 0,
+                    paydayCount: player.paydayCount || 0, // Nombre de fois passé par la case 31
+                    lastPayday: player.lastPayday || null, // Date du dernier Jour de Paye
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.game.players.push(newPlayer);
+                this.game.meta.lastModified = new Date().toISOString();
+                this.saveToStorage();
+                return newPlayer;
+            },
+            
+            updatePlayer(playerId, updates) {
+                const playerIndex = this.game.players.findIndex(p => p.id === playerId);
+                if (playerIndex === -1) return null;
+                
+                this.game.players[playerIndex] = {
+                    ...this.game.players[playerIndex],
+                    ...updates
+                };
+                this.game.meta.lastModified = new Date().toISOString();
+                this.saveToStorage();
+                return this.game.players[playerIndex];
+            },
+            
+            deletePlayer(playerId) {
+                const playerIndex = this.game.players.findIndex(p => p.id === playerId);
+                if (playerIndex === -1) return false;
+                
+                this.game.players.splice(playerIndex, 1);
+                this.game.meta.lastModified = new Date().toISOString();
+                this.saveToStorage();
+                return true;
+            },
+            
+            addOperation(operation) {
+                const player = this.getPlayerById(operation.playerId);
+                const newOperation = {
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                    timestamp: new Date().toISOString(),
+                    cycle: player ? player.paydayCount || 0 : 0, // Cycle actuel du joueur (nombre de passages case 31)
+                    playerId: operation.playerId,
+                    category: operation.category || "other",
+                    subType: operation.subType || "",
+                    amount: operation.amount || 0,
+                    flow: operation.flow || "bank-to-player", // bank-to-player, player-to-bank, player-to-pot
+                    countsForSavingsInterest: operation.countsForSavingsInterest || false,
+                    comment: operation.comment || "",
+                    cancelled: false
+                };
+                
+                this.game.operations.push(newOperation);
+                this.game.meta.lastModified = new Date().toISOString();
+                this.saveToStorage();
+                return newOperation;
+            },
+            
+            getPlayerOperations(playerId) {
+                return this.game.operations.filter(op => op.playerId === playerId && !op.cancelled);
+            },
+            
+            getPlayerById(playerId) {
+                return this.game.players.find(p => p.id === playerId);
+            },
+            
+            getAllPlayers() {
+                return [...this.game.players];
+            },
+            
+            getRules() {
+                return { ...this.game.rules };
+            },
+            
+            updateCurrentMonth(month) {
+                this.game.ui.currentMonth = month;
+                this.saveToStorage();
+            },
+            
+            // Calculs dérivés
+            calculatePlayerDebt(playerId) {
+                const playerOps = this.getPlayerOperations(playerId);
+                const loanOps = playerOps.filter(op => op.category === "loan" && !op.cancelled);
+                const repaymentOps = playerOps.filter(op => op.category === "repayment" && !op.cancelled);
+                
+                let totalLoans = loanOps.reduce((sum, op) => sum + op.amount, 0);
+                let totalRepayments = repaymentOps.reduce((sum, op) => sum + op.amount, 0);
+                
+                return Math.max(0, totalLoans - totalRepayments);
+            },
+            
+            calculatePlayerSavings(playerId) {
+                const playerOps = this.getPlayerOperations(playerId);
+                const depositOps = playerOps.filter(op => 
+                    (op.category === "deposit" || (op.category === "savings" && op.flow === "player-to-bank")) && !op.cancelled
+                );
+                const withdrawalOps = playerOps.filter(op => 
+                    (op.category === "withdrawal" || (op.category === "savings" && op.flow === "bank-to-player")) && !op.cancelled
+                );
+                const interestOps = playerOps.filter(op => 
+                    op.category === "interest" && op.subType === "savings" && !op.cancelled
+                );
+                
+                let totalDeposits = depositOps.reduce((sum, op) => sum + op.amount, 0);
+                let totalWithdrawals = withdrawalOps.reduce((sum, op) => sum + op.amount, 0);
+                let totalInterest = interestOps.reduce((sum, op) => sum + op.amount, 0);
+                
+                return Math.max(0, totalDeposits + totalInterest - totalWithdrawals);
+            },
+            
+            calculatePendingInterest(playerId) {
+                const debt = this.calculatePlayerDebt(playerId);
+                const rules = this.getRules();
+                const loanInterest = debt * rules.loanInterestRate;
+                
+                const savings = this.calculatePlayerSavings(playerId);
+                const savingsInterest = savings * rules.savingsInterestRate;
+                
+                return {
+                    loanInterest,
+                    savingsInterest,
+                    total: savingsInterest - loanInterest // positif si le joueur reçoit plus qu'il ne paie
+                };
+            }
+        };
+        
+        /* MODULE STORE - Persistance localStorage */
+        const Store = {
+            STORAGE_KEY: 'labonnepaye_game_data',
+            
+            save(game) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(game));
+                    return true;
+                } catch (error) {
+                    console.error("Erreur lors de la sauvegarde:", error);
+                    return false;
+                }
+            },
+            
+            load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (!data) return null;
+                    
+                    const game = JSON.parse(data);
+                    // Migration si nécessaire
+                    if (!game.meta || !game.meta.version) {
+                        game.meta = game.meta || {};
+                        game.meta.version = 1;
+                    }
+                    
+                    return game;
+                } catch (error) {
+                    console.error("Erreur lors du chargement:", error);
+                    return null;
+                }
+            },
+            
+            clear() {
+                localStorage.removeItem(this.STORAGE_KEY);
+            },
+            
+            exportToJSON() {
+                return JSON.stringify(State.getGame(), null, 2);
+            },
+            
+            importFromJSON(jsonString) {
+                try {
+                    const game = JSON.parse(jsonString);
+                    // Validation basique
+                    if (!game.meta || !game.rules || !Array.isArray(game.players)) {
+                        throw new Error("Format JSON invalide");
+                    }
+                    State.setGame(game);
+                    return true;
+                } catch (error) {
+                    console.error("Erreur lors de l'import:", error);
+                    return false;
+                }
+            }
+        };
+        
+        /* MODULE CALC - Calculs métier */
+        const Calc = {
+            formatCurrency(amount, currency = "euros") {
+                const symbols = {
+                    francs: "₣",
+                    euros: "€",
+                    custom: ""
+                };
+                const symbol = symbols[currency] || "";
+                return `${amount.toLocaleString('fr-FR')} ${symbol}`.trim();
+            },
+            
+            calculateLoanInterest(debt, interestRate) {
+                return Math.round(debt * interestRate);
+            },
+            
+            calculateSavingsInterest(savings, interestRate) {
+                return Math.round(savings * interestRate);
+            },
+            
+            applyWithdrawalFee(amount, fee) {
+                return amount - fee;
+            },
+            
+            getNextPaydayPlayer(players, currentIndex) {
+                if (players.length === 0) return null;
+                return players[currentIndex % players.length];
+            },
+            
+            validateOperation(operation, gameState) {
+                const errors = [];
+                const player = State.getPlayerById(operation.playerId);
+                
+                if (!player) {
+                    errors.push("Joueur non trouvé");
+                }
+                
+                if (operation.amount <= 0) {
+                    errors.push("Le montant doit être positif");
+                }
+                
+                // Validation spécifique selon le type d'opération
+                if (operation.category === "withdrawal") {
+                    const currentSavings = State.calculatePlayerSavings(operation.playerId);
+                    if (operation.amount > currentSavings) {
+                        errors.push("Retrait supérieur à l'épargne disponible");
+                    }
+                }
+                
+                if (operation.category === "repayment") {
+                    const currentDebt = State.calculatePlayerDebt(operation.playerId);
+                    if (operation.amount > currentDebt) {
+                        errors.push("Remboursement supérieur à la dette");
+                    }
+                }
+                
+                return {
+                    isValid: errors.length === 0,
+                    errors
+                };
+            }
+        };
+        
+        /* MODULE ACTIONS - Opérations métier */
+        const Actions = {
+            paySalary(playerId, amount = null) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                const rules = State.getRules();
+                const salary = amount || rules.paydaySalary;
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "salary",
+                    amount: salary,
+                    flow: "bank-to-player",
+                    comment: "Salaire du Jour de Paye"
+                });
+                
+                // Mettre à jour le cash du joueur
+                State.updatePlayer(playerId, {
+                    cash: player.cash + salary
+                });
+                
+                return { success: true, operation };
+            },
+            
+            grantLoan(playerId, amount = null) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                const rules = State.getRules();
+                const loanAmount = amount || rules.loanUnit;
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "loan",
+                    amount: loanAmount,
+                    flow: "bank-to-player",
+                    comment: "Prêt accordé"
+                });
+                
+                // Mettre à jour le cash du joueur
+                State.updatePlayer(playerId, {
+                    cash: player.cash + loanAmount,
+                    loanCards: player.loanCards + 1
+                });
+                
+                return { success: true, operation };
+            },
+            
+            repayLoan(playerId, amount) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                const currentDebt = State.calculatePlayerDebt(playerId);
+                if (amount > currentDebt) {
+                    amount = currentDebt; // Ne pas rembourser plus que la dette
+                }
+                
+                if (amount > player.cash) {
+                    return { success: false, error: "Fonds insuffisants" };
+                }
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "repayment",
+                    amount: amount,
+                    flow: "player-to-bank",
+                    comment: "Remboursement de prêt"
+                });
+                
+                // Mettre à jour le cash du joueur
+                State.updatePlayer(playerId, {
+                    cash: player.cash - amount
+                });
+                
+                return { success: true, operation };
+            },
+            
+            depositSavings(playerId, amount) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                if (amount > player.cash) {
+                    return { success: false, error: "Fonds insuffisants" };
+                }
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "deposit",
+                    amount: amount,
+                    flow: "player-to-bank",
+                    countsForSavingsInterest: true,
+                    comment: "Dépôt sur livret"
+                });
+                
+                // Mettre à jour le cash du joueur
+                State.updatePlayer(playerId, {
+                    cash: player.cash - amount
+                });
+                
+                return { success: true, operation };
+            },
+            
+            withdrawSavings(playerId, amount) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                const rules = State.getRules();
+                const currentSavings = State.calculatePlayerSavings(playerId);
+                
+                if (amount > currentSavings) {
+                    return { success: false, error: "Épargne insuffisante" };
+                }
+                
+                const netAmount = amount - rules.savingsWithdrawalFee;
+                if (netAmount <= 0) {
+                    return { success: false, error: "Frais de retrait supérieurs au montant" };
+                }
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "withdrawal",
+                    amount: amount,
+                    flow: "bank-to-player",
+                    comment: `Retrait du livret (frais: ${rules.savingsWithdrawalFee})`
+                });
+                
+                // Mettre à jour le cash du joueur (montant net après frais)
+                State.updatePlayer(playerId, {
+                    cash: player.cash + netAmount
+                });
+                
+                // Ajouter une opération pour les frais
+                State.addOperation({
+                    playerId,
+                    category: "fee",
+                    amount: rules.savingsWithdrawalFee,
+                    flow: "player-to-bank",
+                    comment: "Frais de retrait du livret"
+                });
+                
+                return { success: true, operation, netAmount };
+            },
+            
+            payBill(playerId, amount, description = "Facture") {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                if (amount > player.cash) {
+                    return { success: false, error: "Fonds insuffisants" };
+                }
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "bill",
+                    amount: amount,
+                    flow: "player-to-bank",
+                    comment: description
+                });
+                
+                // Mettre à jour le cash du joueur
+                State.updatePlayer(playerId, {
+                    cash: player.cash - amount
+                });
+                
+                // Ajouter au pot de la banque
+                State.game.bank.pot += amount;
+                
+                return { success: true, operation };
+            },
+            
+            addGain(playerId, amount, description = "Gain") {
+                const player = State.getPlayerById(playerId);
+                if (!player) return { success: false, error: "Joueur non trouvé" };
+                
+                const operation = State.addOperation({
+                    playerId,
+                    category: "gain",
+                    amount: amount,
+                    flow: "bank-to-player",
+                    comment: description
+                });
+                
+                // Mettre à jour le cash du joueur
+                State.updatePlayer(playerId, {
+                    cash: player.cash + amount
+                });
+                
+                return { success: true, operation };
+            }
+        };
+        
+        /* MODULE UI - Gestion de l'interface */
+        const UI = {
+            currentScreen: "setup",
+            
+            init() {
+                // Charger les données sauvegardées
+                const savedGame = Store.load();
+                if (savedGame) {
+                    State.setGame(savedGame);
+                    this.showScreen("dashboard");
+                } else {
+                    this.showScreen("setup");
+                }
+                
+                this.bindEvents();
+                this.renderCurrentScreen();
+                this.updateTheme();
+            },
+            
+            bindEvents() {
+                // Navigation
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const screen = tab.getAttribute('data-screen');
+                        this.showScreen(screen);
+                    });
+                });
+                
+                // Thème
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+                
+                // Sauvegarde/Chargement
+                document.getElementById('save-btn').addEventListener('click', () => {
+                    Store.save(State.getGame());
+                    this.showMessage("Sauvegarde", "Partie sauvegardée avec succès !", "success");
+                });
+                
+                document.getElementById('load-btn').addEventListener('click', () => {
+                    const loaded = Store.load();
+                    if (loaded) {
+                        State.setGame(loaded);
+                        this.renderCurrentScreen();
+                        this.showMessage("Chargement", "Partie chargée avec succès !", "success");
+                    } else {
+                        this.showMessage("Erreur", "Aucune sauvegarde trouvée", "error");
+                    }
+                });
+                
+                // Paramétrage
+                document.getElementById('save-settings').addEventListener('click', () => {
+                    this.saveSettings();
+                });
+                
+                document.getElementById('preset-francs').addEventListener('click', () => {
+                    this.applyPreset('francs');
+                });
+                
+                document.getElementById('preset-euros').addEventListener('click', () => {
+                    this.applyPreset('euros');
+                });
+                
+                document.getElementById('preset-custom').addEventListener('click', () => {
+                    this.applyPreset('custom');
+                });
+                
+                // Joueurs
+                document.getElementById('add-player-btn').addEventListener('click', () => {
+                    this.showPlayerForm();
+                });
+                
+                document.getElementById('cancel-player-btn').addEventListener('click', () => {
+                    this.hidePlayerForm();
+                });
+                
+                document.getElementById('save-player-btn').addEventListener('click', () => {
+                    this.savePlayer();
+                });
+                
+                // Actions rapides
+                document.getElementById('execute-quick-action').addEventListener('click', () => {
+                    this.executeQuickAction();
+                });
+                
+                // Modal
+                document.getElementById('modal-close').addEventListener('click', () => {
+                    this.hideModal();
+                });
+                
+                document.getElementById('modal-cancel').addEventListener('click', () => {
+                    this.hideModal();
+                });
+                
+                // Export/Import
+                document.getElementById('copy-json').addEventListener('click', () => {
+                    this.copyJSONToClipboard();
+                });
+                
+                document.getElementById('download-json').addEventListener('click', () => {
+                    this.downloadJSON();
+                });
+                
+                document.getElementById('import-json').addEventListener('click', () => {
+                    this.importJSON();
+                });
+                
+                document.getElementById('export-csv-operations').addEventListener('click', () => {
+                    this.exportCSVOperations();
+                });
+                
+                document.getElementById('export-csv-players').addEventListener('click', () => {
+                    this.exportCSVPlayers();
+                });
+                
+                document.getElementById('create-backup').addEventListener('click', () => {
+                    this.createBackup();
+                });
+                
+                // Assistant Jour de Paye - Wizard
+                document.getElementById('wizard-prev').addEventListener('click', () => {
+                    this.prevWizardStep();
+                });
+                
+                document.getElementById('wizard-next').addEventListener('click', () => {
+                    this.nextWizardStep();
+                });
+                
+                document.getElementById('wizard-complete').addEventListener('click', () => {
+                    this.completeWizard();
+                });
+                
+                document.getElementById('wizard-cancel').addEventListener('click', () => {
+                    this.cancelWizard();
+                });
+                
+                // Boutons de remboursement rapide dans le wizard
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('wizard-repayment-full')) {
+                        const playerId = State.getGame().ui.currentPaydayPlayerId;
+                        const debt = State.calculatePlayerDebt(playerId);
+                        document.getElementById('wizard-repayment-amount').value = debt;
+                        this.updateWizardStep6Preview();
+                    }
+                    if (e.target.classList.contains('wizard-repayment-half')) {
+                        const playerId = State.getGame().ui.currentPaydayPlayerId;
+                        const debt = State.calculatePlayerDebt(playerId);
+                        document.getElementById('wizard-repayment-amount').value = Math.floor(debt / 2);
+                        this.updateWizardStep6Preview();
+                    }
+                    if (e.target.classList.contains('wizard-repayment-min')) {
+                        const playerId = State.getGame().ui.currentPaydayPlayerId;
+                        const rules = State.getRules();
+                        const debt = State.calculatePlayerDebt(playerId);
+                        document.getElementById('wizard-repayment-amount').value = Math.min(rules.loanUnit, debt);
+                        this.updateWizardStep6Preview();
+                    }
+                });
+                
+                // Mise à jour de l'étape 6 lorsque les valeurs changent
+                const updateWizardStep6 = () => {
+                    const game = State.getGame();
+                    if (game.ui.currentPaydayStep === 6) {
+                        this.updateWizardStep6Preview();
+                    }
+                };
+                
+                document.getElementById('wizard-salary-custom')?.addEventListener('input', updateWizardStep6);
+                document.getElementById('wizard-savings-adjust')?.addEventListener('input', updateWizardStep6);
+                document.getElementById('wizard-loan-adjust')?.addEventListener('input', updateWizardStep6);
+                document.getElementById('wizard-repayment-amount')?.addEventListener('input', updateWizardStep6);
+                
+                // Note: Pas de bouton de clôture de mois - chaque joueur avance à son propre rythme
+            },
+            
+            showScreen(screenName) {
+                // Mettre à jour la navigation
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.getAttribute('data-screen') === screenName);
+                });
+                
+                // Cacher tous les écrans
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                
+                // Afficher l'écran demandé
+                const targetScreen = document.getElementById(`screen-${screenName}`);
+                if (targetScreen) {
+                    targetScreen.classList.add('active');
+                    this.currentScreen = screenName;
+                    this.renderCurrentScreen();
+                }
+            },
+            
+            renderCurrentScreen() {
+                switch (this.currentScreen) {
+                    case 'setup':
+                        this.renderSetupScreen();
+                        break;
+                    case 'players':
+                        this.renderPlayersScreen();
+                        break;
+                    case 'dashboard':
+                        this.renderDashboardScreen();
+                        break;
+                    case 'payday':
+                        this.renderPaydayScreen();
+                        break;
+                    case 'history':
+                        this.renderHistoryScreen();
+                        break;
+                    case 'export':
+                        this.renderExportScreen();
+                        break;
+                }
+            },
+            
+            renderSetupScreen() {
+                const game = State.getGame();
+                const rules = game.rules;
+                
+                // Remplir les champs avec les valeurs actuelles
+                document.getElementById('game-name').value = game.meta.title;
+                document.getElementById('currency').value = rules.currency;
+                document.getElementById('payday-salary').value = rules.paydaySalary;
+                document.getElementById('loan-unit').value = rules.loanUnit;
+                document.getElementById('savings-interest').value = rules.savingsInterestRate * 100;
+                document.getElementById('loan-interest').value = rules.loanInterestRate * 100;
+                document.getElementById('withdrawal-fee').value = rules.savingsWithdrawalFee;
+                document.getElementById('deposit-deadline').value = rules.savingsDepositDeadlineDay;
+                document.getElementById('total-months').value = rules.monthsTotal;
+                document.getElementById('loan-repayment-payday-only').checked = rules.loanRepaymentOnlyOnPayday;
+                document.getElementById('deposit-after-deadline').checked = rules.depositAfterDeadline;
+            },
+            
+            renderPlayersScreen() {
+                const players = State.getAllPlayers();
+                const container = document.getElementById('players-list');
+                
+                if (players.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-info">
+                            Aucun joueur n'a été créé. Commencez par ajouter des joueurs.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<div class="grid">';
+                players.forEach(player => {
+                    const debt = State.calculatePlayerDebt(player.id);
+                    const savings = State.calculatePlayerSavings(player.id);
+                    const pendingInterest = State.calculatePendingInterest(player.id);
+                    
+                    html += `
+                        <div class="card">
+                            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                                <div style="width: 20px; height: 20px; background-color: ${player.color}; border-radius: 50%; margin-right: 10px;"></div>
+                                <h4 style="margin: 0;">${player.name}</h4>
+                            </div>
+                            <div>
+                                <p><strong>Liquide:</strong> ${Calc.formatCurrency(player.cash, State.getRules().currency)}</p>
+                                <p><strong>Épargne:</strong> ${Calc.formatCurrency(savings, State.getRules().currency)}</p>
+                                <p><strong>Dette:</strong> ${Calc.formatCurrency(debt, State.getRules().currency)}</p>
+                                <p><strong>Cartes prêt:</strong> ${player.loanCards}</p>
+                                <p><strong>Intérêts dus:</strong> ${Calc.formatCurrency(pendingInterest.total, State.getRules().currency)}</p>
+                            </div>
+                            <div class="text-right mt-2">
+                                <button class="btn btn-outline btn-sm edit-player" data-id="${player.id}">✏️ Modifier</button>
+                                <button class="btn btn-danger btn-sm delete-player" data-id="${player.id}">🗑️ Supprimer</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                container.innerHTML = html;
+                
+                // Ajouter les événements pour les boutons
+                container.querySelectorAll('.edit-player').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const playerId = e.target.getAttribute('data-id');
+                        this.editPlayer(playerId);
+                    });
+                });
+                
+                container.querySelectorAll('.delete-player').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const playerId = e.target.getAttribute('data-id');
+                        this.deletePlayer(playerId);
+                    });
+                });
+            },
+            
+            renderDashboardScreen() {
+                const game = State.getGame();
+                const players = State.getAllPlayers();
+                const rules = State.getRules();
+                
+                // Mettre à jour les badges
+                document.getElementById('total-players').textContent = `${players.length} joueur${players.length > 1 ? 's' : ''}`;
+                
+                // Remplir le sélecteur d'actions rapides
+                const playerSelect = document.getElementById('quick-action-player');
+                playerSelect.innerHTML = '<option value="">-- Choisir un joueur --</option>';
+                players.forEach(player => {
+                    playerSelect.innerHTML += `<option value="${player.id}">${player.name}</option>`;
+                });
+                
+                // Statistiques
+                const statsContainer = document.getElementById('dashboard-stats');
+                if (players.length > 0) {
+                    let statsHtml = '';
+                    
+                    // Total liquidité
+                    const totalCash = players.reduce((sum, p) => sum + p.cash, 0);
+                    statsHtml += `
+                        <div class="card">
+                            <h4 class="card-title">💵 Liquidité totale</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: #27ae60;">
+                                ${Calc.formatCurrency(totalCash, rules.currency)}
+                            </p>
+                        </div>
+                    `;
+                    
+                    // Total épargne
+                    const totalSavings = players.reduce((sum, p) => sum + State.calculatePlayerSavings(p.id), 0);
+                    statsHtml += `
+                        <div class="card">
+                            <h4 class="card-title">💰 Épargne totale</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: #3498db;">
+                                ${Calc.formatCurrency(totalSavings, rules.currency)}
+                            </p>
+                        </div>
+                    `;
+                    
+                    // Total dette
+                    const totalDebt = players.reduce((sum, p) => sum + State.calculatePlayerDebt(p.id), 0);
+                    statsHtml += `
+                        <div class="card">
+                            <h4 class="card-title">🏦 Dette totale</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: #e74c3c;">
+                                ${Calc.formatCurrency(totalDebt, rules.currency)}
+                            </p>
+                        </div>
+                    `;
+                    
+                    // Pot de la banque
+                    statsHtml += `
+                        <div class="card">
+                            <h4 class="card-title">🏛️ Pot de la banque</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: #f39c12;">
+                                ${Calc.formatCurrency(game.bank.pot, rules.currency)}
+                            </p>
+                        </div>
+                    `;
+                    
+                    statsContainer.innerHTML = statsHtml;
+                } else {
+                    statsContainer.innerHTML = `
+                        <div class="alert alert-warning" style="grid-column: 1/-1;">
+                            Aucun joueur créé. Ajoutez des joueurs pour voir les statistiques.
+                        </div>
+                    `;
+                }
+                
+                // Tableau des joueurs
+                const tableBody = document.querySelector('#players-overview tbody');
+                if (players.length > 0) {
+                    let tableHtml = '';
+                    players.forEach(player => {
+                        const debt = State.calculatePlayerDebt(player.id);
+                        const savings = State.calculatePlayerSavings(player.id);
+                        const pendingInterest = State.calculatePendingInterest(player.id);
+                        
+                        tableHtml += `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background-color: ${player.color}; border-radius: 50%; margin-right: 8px;"></div>
+                                        ${player.name}
+                                    </div>
+                                </td>
+                                <td>${Calc.formatCurrency(player.cash, rules.currency)}</td>
+                                <td>${Calc.formatCurrency(savings, rules.currency)}</td>
+                                <td>${Calc.formatCurrency(debt, rules.currency)}</td>
+                                <td>${Calc.formatCurrency(pendingInterest.total, rules.currency)}</td>
+                                <td>
+                                    <button class="btn btn-outline btn-sm view-player" data-id="${player.id}">👀 Voir</button>
+                                    <button class="btn btn-primary btn-sm quick-action" data-id="${player.id}">⚡ Action</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tableBody.innerHTML = tableHtml;
+                    
+                    // Ajouter les événements
+                    tableBody.querySelectorAll('.view-player').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const playerId = e.target.getAttribute('data-id');
+                            this.viewPlayerDetails(playerId);
+                        });
+                    });
+                    
+                    tableBody.querySelectorAll('.quick-action').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const playerId = e.target.getAttribute('data-id');
+                            document.getElementById('quick-action-player').value = playerId;
+                            document.getElementById('quick-action-player').dispatchEvent(new Event('change'));
+                        });
+                    });
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="alert alert-info">
+                                    Aucun joueur n'a été créé. Allez dans l'onglet "Joueurs" pour en ajouter.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                // Résumé de la banque
+                const bankSummary = document.getElementById('bank-summary');
+                bankSummary.innerHTML = `
+                    <p><strong>Règles actives:</strong></p>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li>💵 Salaire: ${Calc.formatCurrency(rules.paydaySalary, rules.currency)}</li>
+                        <li>🏦 Tranche prêt: ${Calc.formatCurrency(rules.loanUnit, rules.currency)}</li>
+                        <li>💰 Taux épargne: ${(rules.savingsInterestRate * 100).toFixed(1)}%</li>
+                        <li>📈 Taux prêt: ${(rules.loanInterestRate * 100).toFixed(1)}%</li>
+                        <li>🏧 Frais retrait: ${Calc.formatCurrency(rules.savingsWithdrawalFee, rules.currency)}</li>
+                        <li>📅 Dépôt avant: case ${rules.savingsDepositDeadlineDay}</li>
+                    </ul>
+                `;
+            },
+            
+            // Les autres méthodes render seraient implémentées de manière similaire
+            renderPaydayScreen() {
+                const players = State.getAllPlayers();
+                const game = State.getGame();
+                const rules = game.rules;
+                
+                if (players.length === 0) {
+                    document.getElementById('players-payday-grid').innerHTML = `
+                        <div class="alert alert-warning">
+                            Aucun joueur n'a été créé. Allez d'abord dans l'onglet "Joueurs".
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Afficher la liste des joueurs avec bouton "Payer Jour de Paye"
+                let playersHtml = '<div class="grid">';
+                players.forEach(player => {
+                    const debt = State.calculatePlayerDebt(player.id);
+                    const savings = State.calculatePlayerSavings(player.id);
+                    const pendingInterest = State.calculatePendingInterest(player.id);
+                    
+                    playersHtml += `
+                        <div class="card">
+                            <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                <div style="width: 16px; height: 16px; background-color: ${player.color}; border-radius: 50%; margin-right: 8px;"></div>
+                                <h5 style="margin: 0; flex-grow: 1;">${player.name}</h5>
+                                ${player.paydayCount > 0 ? `<span class="badge badge-info">${player.paydayCount}× case 31</span>` : ''}
+                            </div>
+                            <div style="font-size: 0.9rem; margin-bottom: 1rem;">
+                                <p>💵 ${Calc.formatCurrency(player.cash, rules.currency)}</p>
+                                <p>💰 ${Calc.formatCurrency(savings, rules.currency)}</p>
+                                <p>🏦 ${Calc.formatCurrency(debt, rules.currency)}</p>
+                                ${pendingInterest.total !== 0 ? `<p>📈 Intérêts nets: ${Calc.formatCurrency(pendingInterest.total, rules.currency)}</p>` : ''}
+                                ${player.lastPayday ? `<p><small>Dernier JP: ${new Date(player.lastPayday).toLocaleDateString('fr-FR')}</small></p>` : ''}
+                            </div>
+                            <div class="text-center">
+                                <button class="btn btn-success btn-sm pay-day-btn" data-player-id="${player.id}" style="width: 100%;">
+                                    💵 Payer le Jour de Paye (case 31)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                playersHtml += '</div>';
+                document.getElementById('players-payday-grid').innerHTML = playersHtml;
+                
+                // Ajouter les événements aux boutons
+                document.querySelectorAll('.pay-day-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const playerId = e.target.getAttribute('data-player-id');
+                        this.startPaydayWizardForPlayer(playerId);
+                    });
+                });
+                
+                // Cacher le wizard par défaut
+                document.getElementById('payday-wizard').style.display = 'none';
+                document.getElementById('payday-players-list').style.display = 'block';
+            },
+            
+            startPaydayWizardForPlayer(playerId) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return;
+                
+                const game = State.getGame();
+                game.ui.currentPaydayPlayerId = playerId;
+                game.ui.currentPaydayStep = 1;
+                State.saveToStorage();
+                
+                // Afficher le wizard, cacher la liste
+                document.getElementById('payday-wizard').style.display = 'block';
+                document.getElementById('payday-players-list').style.display = 'none';
+                
+                // Mettre à jour le nom du joueur
+                document.getElementById('wizard-player-name').textContent = player.name;
+                document.getElementById('wizard-player-name-final').textContent = player.name;
+                
+                this.showWizardStep(1);
+            },
+            
+            showWizardStep(step) {
+                const game = State.getGame();
+                const playerId = game.ui.currentPaydayPlayerId;
+                const player = State.getPlayerById(playerId);
+                
+                if (!player) {
+                    this.cancelWizard();
+                    return;
+                }
+                
+                const rules = State.getRules();
+                const debt = State.calculatePlayerDebt(playerId);
+                const savings = State.calculatePlayerSavings(playerId);
+                const pendingInterest = State.calculatePendingInterest(playerId);
+                
+                // Mettre à jour l'indicateur
+                game.ui.currentPaydayStep = step;
+                document.getElementById('wizard-step-indicator').textContent = `Étape ${step}/7`;
+                
+                // Barre de progression
+                const progressPercent = ((step - 1) / 7) * 100;
+                document.getElementById('wizard-progress-bar').style.width = `${progressPercent}%`;
+                
+                // Cacher toutes les étapes
+                document.querySelectorAll('.wizard-step').forEach(el => {
+                    el.style.display = 'none';
+                });
+                
+                // Afficher l'étape courante
+                const currentStepEl = document.getElementById(`wizard-step-${step}`);
+                if (currentStepEl) {
+                    currentStepEl.style.display = 'block';
+                }
+                
+                // Mettre à jour les boutons
+                document.getElementById('wizard-prev').disabled = step === 1;
+                document.getElementById('wizard-next').style.display = step < 7 ? 'inline-block' : 'none';
+                document.getElementById('wizard-complete').style.display = step === 7 ? 'inline-block' : 'none';
+                
+                // Charger les données pour l'étape
+                switch (step) {
+                    case 1: // Résumé avant paie
+                        let summaryHtml = `
+                            <div class="grid">
+                                <div class="card">
+                                    <h4>💵 Liquidité</h4>
+                                    <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(player.cash, rules.currency)}</p>
+                                </div>
+                                <div class="card">
+                                    <h4>💰 Épargne</h4>
+                                    <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(savings, rules.currency)}</p>
+                                </div>
+                                <div class="card">
+                                    <h4>🏦 Dette</h4>
+                                    <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(debt, rules.currency)}</p>
+                                </div>
+                                <div class="card">
+                                    <h4>📈 Intérêts nets</h4>
+                                    <p style="font-size: 1.5rem; font-weight: bold; color: ${pendingInterest.total >= 0 ? '#27ae60' : '#e74c3c'}">
+                                        ${Calc.formatCurrency(pendingInterest.total, rules.currency)}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p><strong>Détail des intérêts :</strong></p>
+                                <ul>
+                                    <li>Intérêts d'épargne à recevoir : ${Calc.formatCurrency(pendingInterest.savingsInterest, rules.currency)}</li>
+                                    <li>Intérêts de prêt à payer : ${Calc.formatCurrency(pendingInterest.loanInterest, rules.currency)}</li>
+                                </ul>
+                            </div>
+                        `;
+                        document.getElementById('wizard-summary-before').innerHTML = summaryHtml;
+                        break;
+                        
+                    case 2: // Salaire
+                        document.getElementById('wizard-salary-amount').textContent = Calc.formatCurrency(rules.paydaySalary, rules.currency);
+                        document.getElementById('wizard-salary-custom').value = '';
+                        break;
+                        
+                    case 3: // Intérêts d'épargne
+                        document.getElementById('wizard-savings-amount').textContent = Calc.formatCurrency(savings, rules.currency);
+                        document.getElementById('wizard-savings-rate').textContent = `${(rules.savingsInterestRate * 100).toFixed(1)}%`;
+                        document.getElementById('wizard-savings-interest').textContent = Calc.formatCurrency(pendingInterest.savingsInterest, rules.currency);
+                        document.getElementById('wizard-savings-adjust').value = '';
+                        break;
+                        
+                    case 4: // Intérêts de prêt
+                        document.getElementById('wizard-debt-amount').textContent = Calc.formatCurrency(debt, rules.currency);
+                        document.getElementById('wizard-loan-rate').textContent = `${(rules.loanInterestRate * 100).toFixed(1)}%`;
+                        document.getElementById('wizard-loan-interest').textContent = Calc.formatCurrency(pendingInterest.loanInterest, rules.currency);
+                        document.getElementById('wizard-loan-adjust').value = '';
+                        break;
+                        
+                    case 5: // Remboursement
+                        const cashAfterInterest = player.cash + rules.paydaySalary + pendingInterest.savingsInterest - pendingInterest.loanInterest;
+                        document.getElementById('wizard-debt-after-interest').textContent = Calc.formatCurrency(debt, rules.currency);
+                        document.getElementById('wizard-cash-after-interest').textContent = Calc.formatCurrency(cashAfterInterest, rules.currency);
+                        document.getElementById('wizard-repayment-amount').value = Math.min(rules.loanUnit, debt, cashAfterInterest);
+                        break;
+                        
+                    case 6: // Nouvel état
+                        this.updateWizardStep6Preview();
+                        break;
+                        
+                    case 7: // Clôture
+                        document.getElementById('wizard-comments').value = '';
+                        document.getElementById('wizard-confirm').checked = true;
+                        break;
+                }
+            },
+            
+            updateWizardStep6Preview() {
+                const playerId = State.getGame().ui.currentPaydayPlayerId;
+                const player = State.getPlayerById(playerId);
+                if (!player) return;
+                
+                const rules = State.getRules();
+                const debt = State.calculatePlayerDebt(playerId);
+                const savings = State.calculatePlayerSavings(playerId);
+                const pendingInterest = State.calculatePendingInterest(playerId);
+                
+                // Récupérer les valeurs des champs
+                const customSalary = parseInt(document.getElementById('wizard-salary-custom').value) || rules.paydaySalary;
+                const savingsAdjust = parseInt(document.getElementById('wizard-savings-adjust').value) || pendingInterest.savingsInterest;
+                const loanAdjust = parseInt(document.getElementById('wizard-loan-adjust').value) || pendingInterest.loanInterest;
+                const repayment = parseInt(document.getElementById('wizard-repayment-amount').value) || 0;
+                
+                // Calculer les nouveaux soldes
+                const newCash = player.cash + customSalary + savingsAdjust - loanAdjust - repayment;
+                const newSavings = savings + savingsAdjust;
+                const newDebt = debt - repayment;
+                
+                let afterHtml = `
+                    <div class="grid">
+                        <div class="card">
+                            <h4>💵 Nouvelle liquidité</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: ${newCash >= 0 ? '#27ae60' : '#e74c3c'}">
+                                ${Calc.formatCurrency(newCash, rules.currency)}
+                            </p>
+                        </div>
+                        <div class="card">
+                            <h4>💰 Nouvelle épargne</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: #3498db">
+                                ${Calc.formatCurrency(newSavings, rules.currency)}
+                            </p>
+                        </div>
+                        <div class="card">
+                            <h4>🏦 Nouvelle dette</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: ${newDebt >= 0 ? '#f39c12' : '#27ae60'}">
+                                ${Calc.formatCurrency(newDebt, rules.currency)}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p><strong>Récapitulatif des opérations :</strong></p>
+                        <ul>
+                            <li>Salaire : +${Calc.formatCurrency(customSalary, rules.currency)}</li>
+                            <li>Intérêts d'épargne : +${Calc.formatCurrency(savingsAdjust, rules.currency)}</li>
+                            <li>Intérêts de prêt : -${Calc.formatCurrency(loanAdjust, rules.currency)}</li>
+                            ${repayment > 0 ? `<li>Remboursement : -${Calc.formatCurrency(repayment, rules.currency)}</li>` : ''}
+                        </ul>
+                    </div>
+                `;
+                document.getElementById('wizard-summary-after').innerHTML = afterHtml;
+            },
+            
+            nextWizardStep() {
+                const game = State.getGame();
+                if (game.ui.currentPaydayStep < 7) {
+                    this.showWizardStep(game.ui.currentPaydayStep + 1);
+                }
+            },
+            
+            prevWizardStep() {
+                const game = State.getGame();
+                if (game.ui.currentPaydayStep > 1) {
+                    this.showWizardStep(game.ui.currentPaydayStep - 1);
+                }
+            },
+            
+            completeWizard() {
+                const game = State.getGame();
+                const playerId = game.ui.currentPaydayPlayerId;
+                const player = State.getPlayerById(playerId);
+                
+                if (!player) {
+                    this.cancelWizard();
+                    return;
+                }
+                
+                const rules = State.getRules();
+                const debt = State.calculatePlayerDebt(playerId);
+                const savings = State.calculatePlayerSavings(playerId);
+                const pendingInterest = State.calculatePendingInterest(playerId);
+                
+                // Récupérer les valeurs des champs
+                const customSalary = parseInt(document.getElementById('wizard-salary-custom').value) || rules.paydaySalary;
+                const savingsAdjust = parseInt(document.getElementById('wizard-savings-adjust').value) || pendingInterest.savingsInterest;
+                const loanAdjust = parseInt(document.getElementById('wizard-loan-adjust').value) || pendingInterest.loanInterest;
+                const repayment = parseInt(document.getElementById('wizard-repayment-amount').value) || 0;
+                const comments = document.getElementById('wizard-comments').value;
+                
+                // Validation
+                if (!document.getElementById('wizard-confirm').checked) {
+                    this.showMessage("Confirmation requise", "Veuillez confirmer que toutes les opérations sont correctes.", "error");
+                    return;
+                }
+                
+                // Exécuter les opérations
+                const results = [];
+                
+                // 1. Salaire
+                const salaryResult = Actions.paySalary(playerId, customSalary);
+                if (salaryResult.success) {
+                    results.push(`Salaire: ${Calc.formatCurrency(customSalary, rules.currency)}`);
+                }
+                
+                // 2. Intérêts d'épargne
+                if (savingsAdjust > 0) {
+                    const interestOp = State.addOperation({
+                        playerId: playerId,
+                        category: "interest",
+                        subType: "savings",
+                        amount: savingsAdjust,
+                        flow: "bank-to-player",
+                        comment: "Intérêts d'épargne" + (comments ? ` - ${comments}` : '')
+                    });
+                    State.updatePlayer(playerId, {
+                        savings: player.savings + savingsAdjust
+                    });
+                    results.push(`Intérêts épargne: +${Calc.formatCurrency(savingsAdjust, rules.currency)}`);
+                }
+                
+                // 3. Intérêts de prêt
+                if (loanAdjust > 0) {
+                    const interestOp = State.addOperation({
+                        playerId: playerId,
+                        category: "interest",
+                        subType: "loan",
+                        amount: loanAdjust,
+                        flow: "player-to-bank",
+                        comment: "Intérêts de prêt" + (comments ? ` - ${comments}` : '')
+                    });
+                    // Les intérêts de prêt réduisent la liquidité
+                    State.updatePlayer(playerId, {
+                        cash: player.cash - loanAdjust
+                    });
+                    results.push(`Intérêts prêt: -${Calc.formatCurrency(loanAdjust, rules.currency)}`);
+                }
+                
+                // 4. Remboursement
+                if (repayment > 0) {
+                    const repaymentResult = Actions.repayLoan(playerId, repayment);
+                    if (repaymentResult.success) {
+                        results.push(`Remboursement: -${Calc.formatCurrency(repayment, rules.currency)}`);
+                    }
+                }
+                
+                // Incrémenter le compteur de passages à la case 31
+                State.updatePlayer(playerId, {
+                    paydayCount: (player.paydayCount || 0) + 1,
+                    lastPayday: new Date().toISOString()
+                });
+                
+                // Réinitialiser le wizard
+                game.ui.currentPaydayPlayerId = null;
+                game.ui.currentPaydayStep = 1;
+                State.saveToStorage();
+                
+                // Retourner à la liste
+                document.getElementById('payday-wizard').style.display = 'none';
+                document.getElementById('payday-players-list').style.display = 'block';
+                
+                this.showMessage(
+                    "Jour de Paye terminé !",
+                    `Le Jour de Paye est terminé pour ${player.name}.<br><br>
+                    <strong>Opérations effectuées :</strong><br>${results.join('<br>')}`,
+                    "success"
+                );
+                
+                // Re-render pour mettre à jour les stats
+                this.renderPaydayScreen();
+            },
+            
+            cancelWizard() {
+                const game = State.getGame();
+                game.ui.currentPaydayPlayerId = null;
+                game.ui.currentPaydayStep = 1;
+                State.saveToStorage();
+                
+                document.getElementById('payday-wizard').style.display = 'none';
+                document.getElementById('payday-players-list').style.display = 'block';
+                
+                this.renderPaydayScreen();
+            },
+            
+            // Note: Pas de clôture de mois - chaque joueur avance à son propre rythme sur le plateau circulaire
+            
+            nextPaydayStep() {
+                const game = State.getGame();
+                if (game.ui.currentPaydayStep < 7) {
+                    this.showPaydayStep(game.ui.currentPaydayStep + 1);
+                }
+            },
+            
+            prevPaydayStep() {
+                const game = State.getGame();
+                if (game.ui.currentPaydayStep > 1) {
+                    this.showPaydayStep(game.ui.currentPaydayStep - 1);
+                }
+            },
+            
+            completePaydayForPlayer() {
+                const game = State.getGame();
+                const players = State.getAllPlayers();
+                if (players.length === 0 || game.ui.currentPaydayPlayerIndex >= players.length) return;
+                
+                const player = players[game.ui.currentPaydayPlayerIndex];
+                const rules = State.getRules();
+                
+                // Récupérer les valeurs des champs
+                const customSalary = parseInt(document.getElementById('payday-salary-custom').value) || rules.paydaySalary;
+                const savingsAdjust = parseInt(document.getElementById('payday-savings-adjust').value) || undefined;
+                const loanAdjust = parseInt(document.getElementById('payday-loan-adjust').value) || undefined;
+                const repayment = parseInt(document.getElementById('payday-repayment-amount').value) || 0;
+                const comments = document.getElementById('payday-comments').value;
+                
+                // Validation
+                if (!document.getElementById('payday-confirm').checked) {
+                    this.showMessage("Confirmation requise", "Veuillez confirmer que toutes les opérations sont correctes.", "error");
+                    return;
+                }
+                
+                // Exécuter les opérations
+                const results = [];
+                
+                // 1. Salaire
+                const salaryResult = Actions.paySalary(player.id, customSalary);
+                if (salaryResult.success) {
+                    results.push(`Salaire: ${Calc.formatCurrency(customSalary, rules.currency)}`);
+                }
+                
+                // 2. Intérêts d'épargne
+                const savingsInterest = savingsAdjust !== undefined ? savingsAdjust : State.calculatePendingInterest(player.id).savingsInterest;
+                if (savingsInterest > 0) {
+                    const interestOp = State.addOperation({
+                        playerId: player.id,
+                        category: "interest",
+                        subType: "savings",
+                        amount: savingsInterest,
+                        flow: "bank-to-player",
+                        comment: "Intérêts d'épargne" + (comments ? ` - ${comments}` : '')
+                    });
+                    State.updatePlayer(player.id, {
+                        savings: player.savings + savingsInterest
+                    });
+                    results.push(`Intérêts épargne: +${Calc.formatCurrency(savingsInterest, rules.currency)}`);
+                }
+                
+                // 3. Intérêts de prêt
+                const loanInterest = loanAdjust !== undefined ? loanAdjust : State.calculatePendingInterest(player.id).loanInterest;
+                if (loanInterest > 0) {
+                    const interestOp = State.addOperation({
+                        playerId: player.id,
+                        category: "interest",
+                        subType: "loan",
+                        amount: loanInterest,
+                        flow: "player-to-bank",
+                        comment: "Intérêts de prêt" + (comments ? ` - ${comments}` : '')
+                    });
+                    // Les intérêts de prêt réduisent la liquidité
+                    State.updatePlayer(player.id, {
+                        cash: player.cash - loanInterest
+                    });
+                    results.push(`Intérêts prêt: -${Calc.formatCurrency(loanInterest, rules.currency)}`);
+                }
+                
+                // 4. Remboursement
+                if (repayment > 0) {
+                    const repaymentResult = Actions.repayLoan(player.id, repayment);
+                    if (repaymentResult.success) {
+                        results.push(`Remboursement: -${Calc.formatCurrency(repayment, rules.currency)}`);
+                    }
+                }
+                
+                // Marquer le joueur comme terminé pour ce mois
+                State.updatePlayer(player.id, {
+                    currentMonthStatus: "completed"
+                });
+                
+                // Passer au joueur suivant ou terminer le mois
+                game.ui.currentPaydayPlayerIndex++;
+                game.ui.currentPaydayStep = 1;
+                
+                // Si tous les joueurs sont traités, passer au mois suivant
+                if (game.ui.currentPaydayPlayerIndex >= players.length) {
+                    game.ui.currentMonth++;
+                    game.ui.currentPaydayPlayerIndex = 0;
+                    
+                    // Réinitialiser le statut des joueurs pour le nouveau mois
+                    players.forEach(p => {
+                        State.updatePlayer(p.id, {
+                            currentMonthStatus: "active"
+                        });
+                    });
+                    
+                    this.showMessage(
+                        "Mois terminé !",
+                        `Le mois ${game.ui.currentMonth - 1} est terminé pour tous les joueurs.<br><br>
+                        <strong>Opérations effectuées :</strong><br>${results.join('<br>')}`,
+                        "success"
+                    );
+                } else {
+                    this.showMessage(
+                        "Joueur terminé",
+                        `Le Jour de Paye est terminé pour ${player.name}.<br><br>
+                        <strong>Opérations effectuées :</strong><br>${results.join('<br>')}`,
+                        "success"
+                    );
+                }
+                
+                State.saveToStorage();
+                this.renderPaydayScreen();
+            },
+            
+            cancelPaydayWizard() {
+                const game = State.getGame();
+                game.ui.currentPaydayStep = 1;
+                State.saveToStorage();
+                this.renderPaydayScreen();
+            },
+            
+            renderHistoryScreen() {
+                const operations = State.game.operations.filter(op => !op.cancelled);
+                const players = State.getAllPlayers();
+                const rules = State.getRules();
+                
+                // Remplir les filtres
+                const playerFilter = document.getElementById('filter-player');
+                playerFilter.innerHTML = '<option value="">Tous les joueurs</option>';
+                players.forEach(player => {
+                    playerFilter.innerHTML += `<option value="${player.id}">${player.name}</option>`;
+                });
+                
+                const cycleFilter = document.getElementById('filter-cycle');
+                cycleFilter.innerHTML = '<option value="">Tous les cycles</option>';
+                // Trouver tous les cycles uniques dans les opérations
+                const uniqueCycles = [...new Set(operations.map(op => op.cycle || 0))].sort((a, b) => a - b);
+                uniqueCycles.forEach(cycle => {
+                    cycleFilter.innerHTML += `<option value="${cycle}">Cycle ${cycle} (case 31)</option>`;
+                });
+                
+                // Afficher les opérations
+                const tableBody = document.querySelector('#operations-table tbody');
+                if (operations.length > 0) {
+                    let tableHtml = '';
+                    operations.forEach(op => {
+                        const player = players.find(p => p.id === op.playerId);
+                        const playerName = player ? player.name : "Inconnu";
+                        const date = new Date(op.timestamp).toLocaleString('fr-FR');
+                        
+                        // Icône selon le type
+                        let icon = "📝";
+                        if (op.category === "salary") icon = "💵";
+                        if (op.category === "loan") icon = "🏦";
+                        if (op.category === "repayment") icon = "📉";
+                        if (op.category === "deposit") icon = "💰";
+                        if (op.category === "withdrawal") icon = "🏧";
+                        if (op.category === "interest") icon = "📈";
+                        if (op.category === "bill") icon = "🧾";
+                        if (op.category === "gain") icon = "🎁";
+                        if (op.category === "fee") icon = "💸";
+                        
+                        tableHtml += `
+                            <tr>
+                                <td>${date}</td>
+                                <td>${op.cycle}</td>
+                                <td>${playerName}</td>
+                                <td>${icon} ${op.category}${op.subType ? ` (${op.subType})` : ''}</td>
+                                <td>${Calc.formatCurrency(op.amount, rules.currency)}</td>
+                                <td>${op.comment || ''}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm cancel-operation" data-id="${op.id}">Annuler</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tableBody.innerHTML = tableHtml;
+                    
+                    // Ajouter les événements pour annuler les opérations
+                    tableBody.querySelectorAll('.cancel-operation').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const opId = e.target.getAttribute('data-id');
+                            this.cancelOperation(opId);
+                        });
+                    });
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="alert alert-info">
+                                    Aucune opération enregistrée.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                // Résumé
+                const summary = document.getElementById('history-summary');
+                summary.innerHTML = `
+                    <p><strong>${operations.length} opérations enregistrées</strong></p>
+                `;
+            },
+            
+            renderExportScreen() {
+                // Afficher le JSON actuel
+                const jsonExport = document.getElementById('json-export');
+                jsonExport.value = Store.exportToJSON();
+                
+                // Remplir le champ de nom de sauvegarde
+                const backupName = document.getElementById('backup-name');
+                const game = State.getGame();
+                backupName.value = `${game.meta.title} - ${new Date().toLocaleDateString('fr-FR')}`;
+            },
+            
+            // Méthodes d'actions utilisateur
+            saveSettings() {
+                const gameName = document.getElementById('game-name').value.trim() || "Nouvelle partie";
+                const currency = document.getElementById('currency').value;
+                const paydaySalary = parseInt(document.getElementById('payday-salary').value) || 650;
+                const loanUnit = parseInt(document.getElementById('loan-unit').value) || 1000;
+                const savingsInterest = (parseFloat(document.getElementById('savings-interest').value) || 10) / 100;
+                const loanInterest = (parseFloat(document.getElementById('loan-interest').value) || 10) / 100;
+                const withdrawalFee = parseInt(document.getElementById('withdrawal-fee').value) || 100;
+                const depositDeadline = parseInt(document.getElementById('deposit-deadline').value) || 23;
+                const loanRepaymentOnly = document.getElementById('loan-repayment-payday-only').checked;
+                const depositAfterDeadline = document.getElementById('deposit-after-deadline').checked;
+                
+                const newRules = {
+                    currency,
+                    paydaySalary,
+                    loanUnit,
+                    savingsInterestRate: savingsInterest,
+                    loanInterestRate: loanInterest,
+                    savingsWithdrawalFee: withdrawalFee,
+                    savingsDepositDeadlineDay: depositDeadline,
+                    loanRepaymentOnlyOnPayday: loanRepaymentOnly,
+                    depositAfterDeadline: depositAfterDeadline,
+                    currencySymbol: currency === "francs" ? "₣" : "€"
+                };
+                
+                State.updateRules(newRules);
+                State.game.meta.title = gameName;
+                State.game.meta.lastModified = new Date().toISOString();
+                
+                this.showMessage("Paramètres sauvegardés", "Les paramètres de la partie ont été enregistrés avec succès.", "success");
+                this.showScreen("players");
+            },
+            
+            applyPreset(presetName) {
+                const rules = Config.applyPreset(presetName);
+                
+                // Mettre à jour les champs du formulaire
+                document.getElementById('currency').value = rules.currency;
+                document.getElementById('payday-salary').value = rules.paydaySalary;
+                document.getElementById('loan-unit').value = rules.loanUnit;
+                document.getElementById('savings-interest').value = rules.savingsInterestRate * 100;
+                document.getElementById('loan-interest').value = rules.loanInterestRate * 100;
+                document.getElementById('withdrawal-fee').value = rules.savingsWithdrawalFee;
+                document.getElementById('deposit-deadline').value = rules.savingsDepositDeadlineDay;
+                document.getElementById('total-months').value = rules.monthsTotal;
+                document.getElementById('loan-repayment-payday-only').checked = rules.loanRepaymentOnlyOnPayday;
+                document.getElementById('deposit-after-deadline').checked = rules.depositAfterDeadline;
+                
+                this.showMessage("Présélection appliquée", `Le preset "${Config.presets[presetName].name}" a été appliqué.`, "info");
+            },
+            
+            showPlayerForm() {
+                document.getElementById('player-form-container').style.display = 'block';
+                document.getElementById('add-player-btn').style.display = 'none';
+                
+                // Réinitialiser le formulaire
+                document.getElementById('player-name').value = '';
+                document.getElementById('player-color').value = '#3498db';
+                document.getElementById('player-cash').value = '0';
+                document.getElementById('player-savings').value = '0';
+            },
+            
+            hidePlayerForm() {
+                document.getElementById('player-form-container').style.display = 'none';
+                document.getElementById('add-player-btn').style.display = 'block';
+            },
+            
+            savePlayer() {
+                const name = document.getElementById('player-name').value.trim();
+                const color = document.getElementById('player-color').value;
+                const cash = parseInt(document.getElementById('player-cash').value) || 0;
+                const savings = parseInt(document.getElementById('player-savings').value) || 0;
+                
+                if (!name) {
+                    this.showMessage("Erreur", "Veuillez saisir un nom pour le joueur.", "error");
+                    return;
+                }
+                
+                const player = {
+                    name,
+                    color,
+                    cash,
+                    savings,
+                    debt: 0,
+                    loanCards: 0,
+                    pendingInterest: 0
+                };
+                
+                State.addPlayer(player);
+                this.hidePlayerForm();
+                this.renderPlayersScreen();
+                this.showMessage("Joueur ajouté", `Le joueur "${name}" a été ajouté avec succès.`, "success");
+            },
+            
+            editPlayer(playerId) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return;
+                
+                this.showPlayerForm();
+                document.getElementById('player-name').value = player.name;
+                document.getElementById('player-color').value = player.color;
+                document.getElementById('player-cash').value = player.cash;
+                document.getElementById('player-savings').value = player.savings;
+                
+                // Changer le bouton pour "Mettre à jour"
+                const saveBtn = document.getElementById('save-player-btn');
+                saveBtn.textContent = "Mettre à jour";
+                saveBtn.onclick = () => {
+                    this.updatePlayer(playerId);
+                };
+            },
+            
+            updatePlayer(playerId) {
+                const name = document.getElementById('player-name').value.trim();
+                const color = document.getElementById('player-color').value;
+                const cash = parseInt(document.getElementById('player-cash').value) || 0;
+                const savings = parseInt(document.getElementById('player-savings').value) || 0;
+                
+                if (!name) {
+                    this.showMessage("Erreur", "Veuillez saisir un nom pour le joueur.", "error");
+                    return;
+                }
+                
+                const updates = { name, color, cash, savings };
+                State.updatePlayer(playerId, updates);
+                
+                this.hidePlayerForm();
+                this.renderPlayersScreen();
+                
+                // Restaurer le bouton "Enregistrer"
+                const saveBtn = document.getElementById('save-player-btn');
+                saveBtn.textContent = "Enregistrer le joueur";
+                saveBtn.onclick = () => {
+                    this.savePlayer();
+                };
+                
+                this.showMessage("Joueur mis à jour", `Le joueur "${name}" a été mis à jour avec succès.`, "success");
+            },
+            
+            deletePlayer(playerId) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return;
+                
+                this.showModal(
+                    "Confirmer la suppression",
+                    `Êtes-vous sûr de vouloir supprimer le joueur "${player.name}" ? Toutes ses opérations seront conservées.`,
+                    () => {
+                        State.deletePlayer(playerId);
+                        this.renderPlayersScreen();
+                        this.showMessage("Joueur supprimé", `Le joueur "${player.name}" a été supprimé.`, "success");
+                    }
+                );
+            },
+            
+            viewPlayerDetails(playerId) {
+                const player = State.getPlayerById(playerId);
+                if (!player) return;
+                
+                const debt = State.calculatePlayerDebt(playerId);
+                const savings = State.calculatePlayerSavings(playerId);
+                const pendingInterest = State.calculatePendingInterest(playerId);
+                const rules = State.getRules();
+                
+                let detailsHtml = `
+                    <h3>${player.name}</h3>
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <div style="width: 20px; height: 20px; background-color: ${player.color}; border-radius: 50%; margin-right: 10px;"></div>
+                        <span>Couleur du pion</span>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <h4>💵 Liquidité</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(player.cash, rules.currency)}</p>
+                        </div>
+                        <div class="card">
+                            <h4>💰 Épargne</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(savings, rules.currency)}</p>
+                        </div>
+                        <div class="card">
+                            <h4>🏦 Dette</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(debt, rules.currency)}</p>
+                        </div>
+                        <div class="card">
+                            <h4>📈 Intérêts dus</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold;">${Calc.formatCurrency(pendingInterest.total, rules.currency)}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h4>Actions rapides</h4>
+                        <div class="grid">
+                `;
+                
+                // Boutons d'actions rapides
+                const actions = [
+                    { label: "💵 Verser salaire", action: "salary", class: "btn-success" },
+                    { label: "🏦 Accorder prêt", action: "loan", class: "btn-primary" },
+                    { label: "📉 Remboursement", action: "repayment", class: "btn-warning" },
+                    { label: "💰 Dépôt épargne", action: "deposit", class: "btn-info" },
+                    { label: "🏧 Retrait épargne", action: "withdrawal", class: "btn-outline" },
+                    { label: "🧾 Paiement facture", action: "bill", class: "btn-danger" },
+                    { label: "🎁 Ajouter gain", action: "gain", class: "btn-success" }
+                ];
+                
+                actions.forEach(action => {
+                    detailsHtml += `
+                        <button class="btn ${action.class} player-action" data-player="${playerId}" data-action="${action.action}" style="width: 100%;">
+                            ${action.label}
+                        </button>
+                    `;
+                });
+                
+                detailsHtml += `
+                        </div>
+                    </div>
+                `;
+                
+                this.showModal(`Fiche joueur: ${player.name}`, detailsHtml, null, "large");
+                
+                // Ajouter les événements pour les actions
+                document.querySelectorAll('.player-action').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const playerId = e.target.getAttribute('data-player');
+                        const action = e.target.getAttribute('data-action');
+                        this.promptPlayerAction(playerId, action);
+                    });
+                });
+            },
+            
+            promptPlayerAction(playerId, actionType) {
+                const player = State.getPlayerById(playerId);
+                const rules = State.getRules();
+                let title = "";
+                let content = "";
+                let defaultAmount = 0;
+                
+                switch (actionType) {
+                    case "salary":
+                        title = "Verser le salaire";
+                        defaultAmount = rules.paydaySalary;
+                        content = `
+                            <div class="form-group">
+                                <label>Montant du salaire</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" step="50" class="form-control">
+                            </div>
+                            <p class="alert alert-info">Le salaire standard est de ${Calc.formatCurrency(rules.paydaySalary, rules.currency)}.</p>
+                        `;
+                        break;
+                    case "loan":
+                        title = "Accorder un prêt";
+                        defaultAmount = rules.loanUnit;
+                        content = `
+                            <div class="form-group">
+                                <label>Montant du prêt</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" step="100" class="form-control">
+                            </div>
+                            <p class="alert alert-info">La tranche standard est de ${Calc.formatCurrency(rules.loanUnit, rules.currency)}.</p>
+                        `;
+                        break;
+                    case "repayment":
+                        title = "Remboursement de prêt";
+                        const debt = State.calculatePlayerDebt(playerId);
+                        defaultAmount = Math.min(rules.loanUnit, debt);
+                        content = `
+                            <div class="form-group">
+                                <label>Montant du remboursement</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" max="${debt}" step="50" class="form-control">
+                            </div>
+                            <p class="alert alert-info">Dette actuelle: ${Calc.formatCurrency(debt, rules.currency)}</p>
+                        `;
+                        break;
+                    case "deposit":
+                        title = "Dépôt sur livret";
+                        defaultAmount = Math.min(1000, player.cash);
+                        content = `
+                            <div class="form-group">
+                                <label>Montant du dépôt</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" max="${player.cash}" step="50" class="form-control">
+                            </div>
+                            <p class="alert alert-info">Liquide disponible: ${Calc.formatCurrency(player.cash, rules.currency)}</p>
+                        `;
+                        break;
+                    case "withdrawal":
+                        title = "Retrait du livret";
+                        const savings = State.calculatePlayerSavings(playerId);
+                        defaultAmount = Math.min(1000, savings);
+                        content = `
+                            <div class="form-group">
+                                <label>Montant du retrait</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" max="${savings}" step="50" class="form-control">
+                            </div>
+                            <p class="alert alert-info">
+                                Épargne disponible: ${Calc.formatCurrency(savings, rules.currency)}<br>
+                                Frais de retrait: ${Calc.formatCurrency(rules.savingsWithdrawalFee, rules.currency)}
+                            </p>
+                        `;
+                        break;
+                    case "bill":
+                        title = "Paiement de facture";
+                        defaultAmount = Math.min(500, player.cash);
+                        content = `
+                            <div class="form-group">
+                                <label>Montant de la facture</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" max="${player.cash}" step="50" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" id="action-comment" placeholder="Ex: Facture d'électricité, Loyer..." class="form-control">
+                            </div>
+                            <p class="alert alert-info">Liquide disponible: ${Calc.formatCurrency(player.cash, rules.currency)}</p>
+                        `;
+                        break;
+                    case "gain":
+                        title = "Ajouter un gain";
+                        defaultAmount = 500;
+                        content = `
+                            <div class="form-group">
+                                <label>Montant du gain</label>
+                                <input type="number" id="action-amount" value="${defaultAmount}" min="0" step="50" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" id="action-comment" placeholder="Ex: Loterie, Cadeau..." class="form-control">
+                            </div>
+                        `;
+                        break;
+                }
+                
+                this.showModal(
+                    title,
+                    content,
+                    () => {
+                        const amount = parseInt(document.getElementById('action-amount').value) || 0;
+                        const comment = document.getElementById('action-comment') ? document.getElementById('action-comment').value : "";
+                        
+                        if (amount <= 0) {
+                            this.showMessage("Erreur", "Le montant doit être positif.", "error");
+                            return;
+                        }
+                        
+                        let result;
+                        switch (actionType) {
+                            case "salary":
+                                result = Actions.paySalary(playerId, amount);
+                                break;
+                            case "loan":
+                                result = Actions.grantLoan(playerId, amount);
+                                break;
+                            case "repayment":
+                                result = Actions.repayLoan(playerId, amount);
+                                break;
+                            case "deposit":
+                                result = Actions.depositSavings(playerId, amount);
+                                break;
+                            case "withdrawal":
+                                result = Actions.withdrawSavings(playerId, amount);
+                                break;
+                            case "bill":
+                                result = Actions.payBill(playerId, amount, comment || "Facture");
+                                break;
+                            case "gain":
+                                result = Actions.addGain(playerId, amount, comment || "Gain");
+                                break;
+                        }
+                        
+                        if (result.success) {
+                            this.hideModal();
+                            this.renderDashboardScreen();
+                            this.showMessage("Action réussie", "L'action a été exécutée avec succès.", "success");
+                        } else {
+                            this.showMessage("Erreur", result.error || "Une erreur est survenue.", "error");
+                        }
+                    },
+                    "medium"
+                );
+            },
+            
+            executeQuickAction() {
+                const playerId = document.getElementById('quick-action-player').value;
+                const actionType = document.getElementById('quick-action-type').value;
+                const amount = parseInt(document.getElementById('quick-action-amount').value) || 0;
+                
+                if (!playerId) {
+                    this.showMessage("Erreur", "Veuillez sélectionner un joueur.", "error");
+                    return;
+                }
+                
+                if (amount <= 0) {
+                    this.showMessage("Erreur", "Le montant doit être positif.", "error");
+                    return;
+                }
+                
+                let result;
+                let comment = "";
+                
+                switch (actionType) {
+                    case "salary":
+                        result = Actions.paySalary(playerId, amount);
+                        comment = "Salaire";
+                        break;
+                    case "loan":
+                        result = Actions.grantLoan(playerId, amount);
+                        comment = "Prêt";
+                        break;
+                    case "repayment":
+                        result = Actions.repayLoan(playerId, amount);
+                        comment = "Remboursement prêt";
+                        break;
+                    case "deposit":
+                        result = Actions.depositSavings(playerId, amount);
+                        comment = "Dépôt épargne";
+                        break;
+                    case "withdrawal":
+                        result = Actions.withdrawSavings(playerId, amount);
+                        comment = "Retrait épargne";
+                        break;
+                    case "bill":
+                        result = Actions.payBill(playerId, amount, "Facture via action rapide");
+                        comment = "Facture";
+                        break;
+                    case "gain":
+                        result = Actions.addGain(playerId, amount, "Gain via action rapide");
+                        comment = "Gain";
+                        break;
+                }
+                
+                if (result.success) {
+                    // Réinitialiser le formulaire
+                    document.getElementById('quick-action-amount').value = '';
+                    
+                    this.renderDashboardScreen();
+                    this.showMessage("Action rapide", `${comment} de ${Calc.formatCurrency(amount, State.getRules().currency)} exécuté avec succès.`, "success");
+                } else {
+                    this.showMessage("Erreur", result.error || "Une erreur est survenue.", "error");
+                }
+            },
+            
+            cancelOperation(operationId) {
+                const operation = State.game.operations.find(op => op.id === operationId);
+                if (!operation) return;
+                
+                this.showModal(
+                    "Confirmer l'annulation",
+                    `Êtes-vous sûr de vouloir annuler cette opération ?<br><br>
+                    <strong>${operation.category}</strong> - ${Calc.formatCurrency(operation.amount, State.getRules().currency)}<br>
+                    ${operation.comment ? `"${operation.comment}"` : ''}`,
+                    () => {
+                        operation.cancelled = true;
+                        State.game.meta.lastModified = new Date().toISOString();
+                        Store.save(State.getGame());
+                        
+                        this.renderHistoryScreen();
+                        this.renderDashboardScreen();
+                        this.showMessage("Opération annulée", "L'opération a été annulée.", "success");
+                    }
+                );
+            },
+            
+            // Méthodes pour l'export/import
+            copyJSONToClipboard() {
+                const jsonText = document.getElementById('json-export').value;
+                navigator.clipboard.writeText(jsonText).then(() => {
+                    this.showMessage("JSON copié", "Le JSON a été copié dans le presse-papier.", "success");
+                }).catch(err => {
+                    this.showMessage("Erreur", "Impossible de copier le JSON.", "error");
+                });
+            },
+            
+            downloadJSON() {
+                const jsonText = Store.exportToJSON();
+                const blob = new Blob([jsonText], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `labonnepaye_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage("Téléchargement", "Le fichier JSON a été téléchargé.", "success");
+            },
+            
+            importJSON() {
+                const jsonText = document.getElementById('json-import').value.trim();
+                if (!jsonText) {
+                    this.showMessage("Erreur", "Veuillez coller du JSON valide.", "error");
+                    return;
+                }
+                
+                this.showModal(
+                    "Confirmer l'import",
+                    "⚠️ <strong>Attention:</strong> L'import remplacera TOUTES les données actuelles.<br><br>Êtes-vous sûr de vouloir continuer ?",
+                    () => {
+                        const success = Store.importFromJSON(jsonText);
+                        if (success) {
+                            this.renderCurrentScreen();
+                            this.showMessage("Import réussi", "Les données ont été importées avec succès.", "success");
+                        } else {
+                            this.showMessage("Erreur", "Le JSON est invalide ou corrompu.", "error");
+                        }
+                    }
+                );
+            },
+            
+            exportCSVOperations() {
+                const operations = State.game.operations.filter(op => !op.cancelled);
+                const players = State.getAllPlayers();
+                
+                if (operations.length === 0) {
+                    this.showMessage("Erreur", "Aucune opération à exporter.", "error");
+                    return;
+                }
+                
+                let csv = "Date;Mois;Joueur;Type;Sous-type;Montant;Commentaire\n";
+                
+                operations.forEach(op => {
+                    const player = players.find(p => p.id === op.playerId);
+                    const playerName = player ? player.name : "Inconnu";
+                    const date = new Date(op.timestamp).toLocaleString('fr-FR');
+                    
+                    const row = [
+                        `"${date}"`,
+                        op.month,
+                        `"${playerName}"`,
+                        `"${op.category}"`,
+                        `"${op.subType || ''}"`,
+                        op.amount,
+                        `"${op.comment || ''}"`
+                    ].join(';');
+                    
+                    csv += row + '\n';
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `operations_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage("Export CSV", "Les opérations ont été exportées en CSV.", "success");
+            },
+            
+            exportCSVPlayers() {
+                const players = State.getAllPlayers();
+                const rules = State.getRules();
+                
+                if (players.length === 0) {
+                    this.showMessage("Erreur", "Aucun joueur à exporter.", "error");
+                    return;
+                }
+                
+                let csv = "Nom;Couleur;Liquide;Épargne;Dette;Cartes prêt;Intérêts dus\n";
+                
+                players.forEach(player => {
+                    const debt = State.calculatePlayerDebt(player.id);
+                    const savings = State.calculatePlayerSavings(player.id);
+                    const pendingInterest = State.calculatePendingInterest(player.id);
+                    
+                    const row = [
+                        `"${player.name}"`,
+                        player.color,
+                        player.cash,
+                        savings,
+                        debt,
+                        player.loanCards,
+                        pendingInterest.total
+                    ].join(';');
+                    
+                    csv += row + '\n';
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `joueurs_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage("Export CSV", "Les joueurs ont été exportés en CSV.", "success");
+            },
+            
+            createBackup() {
+                const backupName = document.getElementById('backup-name').value.trim() || "Sauvegarde";
+                const game = State.getGame();
+                
+                // Créer un clone avec le nom de sauvegarde
+                const backup = {
+                    ...game,
+                    meta: {
+                        ...game.meta,
+                        backupName: backupName,
+                        backupDate: new Date().toISOString()
+                    }
+                };
+                
+                // Convertir en JSON et télécharger
+                const jsonText = JSON.stringify(backup, null, 2);
+                const blob = new Blob([jsonText], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_${backupName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage("Sauvegarde créée", `La sauvegarde "${backupName}" a été téléchargée.`, "success");
+            },
+            
+            // Gestion du thème
+            toggleTheme() {
+                const body = document.body;
+                const isDark = body.classList.contains('dark-mode');
+                const themeToggle = document.getElementById('theme-toggle');
+                
+                if (isDark) {
+                    body.classList.remove('dark-mode');
+                    themeToggle.innerHTML = '🌙 Mode sombre';
+                    localStorage.setItem('labonnepaye_theme', 'light');
+                } else {
+                    body.classList.add('dark-mode');
+                    themeToggle.innerHTML = '☀️ Mode clair';
+                    localStorage.setItem('labonnepaye_theme', 'dark');
+                }
+            },
+            
+            updateTheme() {
+                const savedTheme = localStorage.getItem('labonnepaye_theme') || 'light';
+                const themeToggle = document.getElementById('theme-toggle');
+                
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    themeToggle.innerHTML = '☀️ Mode clair';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeToggle.innerHTML = '🌙 Mode sombre';
+                }
+            },
+            
+            // Modal et messages
+            showModal(title, content, onConfirm = null, size = "medium") {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-content').innerHTML = content;
+                
+                const modal = document.getElementById('modal');
+                const confirmBtn = document.getElementById('modal-confirm');
+                const cancelBtn = document.getElementById('modal-cancel');
+                
+                // Ajuster la taille
+                const modalCard = modal.querySelector('.card');
+                if (size === "large") {
+                    modalCard.style.maxWidth = "800px";
+                } else if (size === "small") {
+                    modalCard.style.maxWidth = "400px";
+                } else {
+                    modalCard.style.maxWidth = "500px";
+                }
+                
+                if (onConfirm) {
+                    confirmBtn.style.display = 'inline-block';
+                    confirmBtn.onclick = () => {
+                        onConfirm();
+                        this.hideModal();
+                    };
+                } else {
+                    confirmBtn.style.display = 'none';
+                }
+                
+                cancelBtn.textContent = onConfirm ? "Annuler" : "Fermer";
+                modal.style.display = 'flex';
+            },
+            
+            hideModal() {
+                document.getElementById('modal').style.display = 'none';
+            },
+            
+            showMessage(title, message, type = "info") {
+                const types = {
+                    info: { class: "alert-info", icon: "ℹ️" },
+                    success: { class: "alert-success", icon: "✅" },
+                    warning: { class: "alert-warning", icon: "⚠️" },
+                    error: { class: "alert-danger", icon: "❌" }
+                };
+                
+                const config = types[type] || types.info;
+                
+                this.showModal(
+                    `${config.icon} ${title}`,
+                    `<div class="alert ${config.class}">${message}</div>`,
+                    null,
+                    "small"
+                );
+            }
+        };
+        
+        // ==============================================
+        // INITIALISATION DE L'APPLICATION
+        // ==============================================
+        
+        // Sauvegarde automatique dans State
+        State.saveToStorage = function() {
+            Store.save(this.game);
+        };
+        
+        // Démarrer l'application lorsque la page est chargée
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.init();
+            
+            // Ajouter un message de bienvenue si c'est la première fois
+            if (!Store.load()) {
+                setTimeout(() => {
+                    UI.showMessage(
+                        "Bienvenue dans La Bonne Paye !",
+                        "Commencez par configurer les règles de la partie dans l'onglet <strong>Paramétrage</strong>, puis ajoutez des joueurs.<br><br>" +
+                        "💡 <strong>Astuce:</strong> Utilisez les presets pour les éditions Francs ou Euros.",
+                        "info"
+                    );
+                }, 500);
+            }
+        });
+        
+        // Exposer les modules globalement pour le débogage
+        window.LaBonnePaye = { State, Config, Calc, Actions, Store, UI };
+    </script>
+</body>
+</html>

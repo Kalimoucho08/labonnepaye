@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Bonne Paye - Assistant Banquier v5</title>
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-hover: #1d4ed8; 
+            --success: #16a34a;       
+            --danger: #dc2626;        
+            --warning: #ca8a04;       
+            --bg: #f8fafc;            
+            --surface: #ffffff;       
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            --border: #e2e8f0;        
+            --radius: 8px;            
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: sans-serif; background-color: var(--bg); color: var(--text-main); padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .btn { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-block { display: block; width: 100%; margin-top: 10px; }
+        .player-card { border-left: 5px solid var(--primary); }
+        .balances { display: flex; justify-content: space-around; background: var(--bg); padding: 15px; border-radius: 4px; margin-bottom: 10px; }
+        .balance-item { text-align: center; }
+        .balance-value { font-size: 1.3rem; font-weight: bold; }
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--surface); padding: 25px; border-radius: var(--radius); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .loan-tag { display: inline-block; background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin: 2px; border: 1px solid #f87171; }
+        .loan-urgent { background: #dc2626; color: white; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .summary-box { background: var(--bg); padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; border: 1px solid var(--border); }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .log-table td { border-bottom: 1px solid var(--border); padding: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="screen-setup" class="screen active">
+        <div class="card">
+            <h1>⚙️ Configuration</h1>
+            <div class="grid-3" style="margin-bottom: 20px;">
+                <button class="btn btn-outline" onclick="applyPreset('francs')">Version Francs</button>
+                <button class="btn btn-outline" onclick="applyPreset('euros')">Version Euros</button>
+            </div>
+            <form id="setup-form">
+                <div class="grid-3">
+                    <div><label>Devise</label><input type="text" id="currency" value="€"></div>
+                    <div><label>Salaire</label><input type="number" id="paydaySalary" value="650"></div>
+                    <div><label>Tranche Prêt</label><input type="number" id="loanUnit" value="1000"></div>
+                    <div><label>Intérêt Prêt %</label><input type="number" id="loanInterestRate" value="10"></div>
+                    <div><label>Intérêt Épargne %</label><input type="number" id="savingsInterestRate" value="10"></div>
+                    <div><label>Frais Retrait</label><input type="number" id="savingsWithdrawalFee" value="100"></div>
+                </div>
+                <button type="submit" class="btn btn-block btn-success" style="margin-top:20px">Valider les règles</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="screen-players" class="screen">
+        <div class="card">
+            <h1>👥 Joueurs</h1>
+            <form id="add-player-form" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="playerName" placeholder="Nom" required style="flex:1; padding: 10px;">
+                <button type="submit" class="btn">Ajouter</button>
+            </form>
+            <ul id="players-list" style="margin-bottom: 20px; list-style: none;"></ul>
+            <button onclick="startGame()" class="btn btn-block btn-success">Démarrer la partie</button>
+        </div>
+    </div>
+
+    <div id="screen-dashboard" class="screen">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <h1>🏦 Banque</h1>
+            <button onclick="exportData()" class="btn btn-outline">💾 Exporter</button>
+        </div>
+        <div id="dashboard-players" class="grid-3"></div>
+        <div class="card" style="margin-top: 20px;">
+            <h3>📜 Historique</h3>
+            <table class="log-table" id="operations-log"><tbody></tbody></table>
+        </div>
+    </div>
+
+    <div id="action-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Action</h2>
+            <p id="modal-instruction" style="color: var(--primary); margin: 10px 0; font-weight: bold;"></p>
+            <input type="number" id="modal-amount" style="width:100%; padding:10px; margin-bottom:15px;">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-block btn-outline" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-block btn-success" onclick="confirmAction()">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payday-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>💰 Jour de Paye - <span id="pd-name"></span></h2>
+            
+            <div id="pd-step-1">
+                <div class="balances">
+                    <div>Salaire<br><span class="text-green">+ <span id="pd-sal"></span></span></div>
+                    <div>Int. Épargne<br><span class="text-green">+ <span id="pd-si"></span></span></div>
+                    <div>Int. Prêts<br><span class="text-red">- <span id="pd-li"></span></span></div>
+                </div>
+                
+                <div id="pd-loan-warnings" style="margin-bottom: 15px;">
+                    </div>
+
+                <label>Remboursement de prêt (Billets)</label>
+                <input type="number" id="pd-repayment" value="0" step="1000" oninput="updatePdSummary()" style="width:100%; padding:10px;">
+                
+                <div class="summary-box">
+                    <p style="font-weight: bold;">Bilan billets :</p>
+                    <p id="pd-summary" style="font-size: 1.2rem;"></p>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-block btn-outline" onclick="closePd()">Annuler</button>
+                    <button class="btn btn-block btn-success" onclick="finishPayday()">Clôturer le mois</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let game = {
+        rules: { currency: '€', paydaySalary: 650, loanUnit: 1000, loanInterestRate: 0.1, savingsInterestRate: 0.1, savingsWithdrawalFee: 100 },
+        players: [],
+        logs: []
+    };
+
+    function applyPreset(v) {
+        if(v==='francs') { 
+            document.getElementById('currency').value='F'; 
+            document.getElementById('paydaySalary').value=6500; 
+            document.getElementById('loanUnit').value=10000;
+        } else {
+            document.getElementById('currency').value='€'; 
+            document.getElementById('paydaySalary').value=650; 
+            document.getElementById('loanUnit').value=1000;
+        }
+    }
+
+    document.getElementById('setup-form').onsubmit = (e) => {
+        e.preventDefault();
+        game.rules.currency = document.getElementById('currency').value;
+        game.rules.paydaySalary = parseInt(document.getElementById('paydaySalary').value);
+        game.rules.loanUnit = parseInt(document.getElementById('loanUnit').value);
+        game.rules.loanInterestRate = parseInt(document.getElementById('loanInterestRate').value)/100;
+        game.rules.savingsInterestRate = parseInt(document.getElementById('savingsInterestRate').value)/100;
+        game.rules.savingsWithdrawalFee = parseInt(document.getElementById('savingsWithdrawalFee').value);
+        showScreen('screen-players');
+    };
+
+    document.getElementById('add-player-form').onsubmit = (e) => {
+        e.preventDefault();
+        let n = document.getElementById('playerName').value;
+        game.players.push({ id: Date.now(), name: n, savings: 0, loans: [] }); // loans: [{amount, months}]
+        renderPlayers();
+        document.getElementById('playerName').value = '';
+    };
+
+    function renderPlayers() {
+        let l = document.getElementById('players-list');
+        l.innerHTML = game.players.map(p => `<li style="padding:5px; background:#fff; margin-bottom:2px; border-radius:4px;">${p.name}</li>`).join('');
+    }
+
+    function startGame() { 
+        if(game.players.length===0) return; 
+        showScreen('screen-dashboard'); 
+        renderDashboard(); 
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function execute(pid, type, val, desc) {
+        let p = game.players.find(x => x.id === pid);
+        if(!p) return;
+
+        let impact = "";
+        if(type === 'depot') { p.savings += val; impact = `Encaissez ${val}`; }
+        if(type === 'retrait') { p.savings -= (val + game.rules.savingsWithdrawalFee); impact = `Donnez ${val}`; }
+        if(type === 'pret') { 
+            // On ajoute chaque prêt comme une unité distincte avec 3 mois de délai
+            let count = val / game.rules.loanUnit;
+            for(let i=0; i<count; i++) p.loans.push({ amount: game.rules.loanUnit, months: 3 });
+            impact = `Donnez ${val}`; 
+        }
+        if(type === 'remboursement') {
+            // Rembourse en priorité les prêts les plus anciens (ceux qui ont le moins de mois restants)
+            let rem = val;
+            p.loans.sort((a,b) => a.months - b.months);
+            while(rem > 0 && p.loans.length > 0) {
+                p.loans.shift();
+                rem -= game.rules.loanUnit;
+            }
+            impact = `Encaissez ${val}`;
+        }
+        if(type === 'payday') { impact = val > 0 ? `Donnez ${val}` : `Encaissez ${Math.abs(val)}`; }
+
+        game.logs.unshift({ t: new Date().toLocaleTimeString(), n: p.name, d: desc, i: impact });
+        renderDashboard();
+    }
+
+    function renderDashboard() {
+        let container = document.getElementById('dashboard-players');
+        container.innerHTML = game.players.map(p => {
+            let totalDebt = p.loans.reduce((sum, l) => sum + l.amount, 0);
+            let loansHtml = p.loans.map(l => `<span class="loan-tag ${l.months<=1?'loan-urgent':''}">${l.months}m</span>`).join('');
+            
+            return `
+            <div class="card player-card">
+                <h3>${p.name}</h3>
+                <div class="balances">
+                    <div class="balance-item">Livret<br><span class="balance-value text-green">${p.savings}</span></div>
+                    <div class="balance-item">Dette<br><span class="balance-value text-red">${totalDebt}</span></div>
+                </div>
+                <div style="margin-bottom:10px;">${loansHtml}</div>
+                <div class="grid-3" style="display:flex; flex-wrap:wrap; gap:5px;">
+                    <button class="btn btn-outline" style="flex:1" onclick="openMod(${p.id},'depot')">Dépôt</button>
+                    <button class="btn btn-outline" style="flex:1" onclick="openMod(${p.id},'retrait')">Retrait</button>
+                    <button class="btn btn-outline" style="flex:1" onclick="openMod(${p.id},'pret')">Prêt</button>
+                    <button class="btn btn-outline" style="flex:1" onclick="openMod(${p.id},'remboursement')">Remb.</button>
+                </div>
+                <button class="btn btn-block btn-success" onclick="openPd(${p.id})">JOUR DE PAYE</button>
+            </div>`;
+        }).join('');
+
+        document.getElementById('operations-log').innerHTML = game.logs.map(l => `
+            <tr><td>${l.t}</td><td><b>${l.n}</b></td><td>${l.d}</td><td><i>${l.i}</i></td></tr>
+        `).join('');
+    }
+
+    // GESTION MODALES
+    let curPid = null, curAction = null;
+    function openMod(pid, act) {
+        curPid = pid; curAction = act;
+        let p = game.players.find(x=>x.id===pid);
+        document.getElementById('modal-title').textContent = act.toUpperCase();
+        document.getElementById('modal-amount').value = (act==='pret'||act==='remboursement')? game.rules.loanUnit : 0;
+        document.getElementById('action-modal').classList.add('active');
+    }
+    function closeModal() { document.getElementById('action-modal').classList.remove('active'); }
+    function confirmAction() {
+        let v = parseInt(document.getElementById('modal-amount').value);
+        execute(curPid, curAction, v, curAction);
+        closeModal();
+    }
+
+    // LOGIQUE JOUR DE PAYE
+    let pdCtx = {};
+    function openPd(pid) {
+        let p = game.players.find(x=>x.id===pid);
+        curPid = pid;
+        pdCtx.sal = game.rules.paydaySalary;
+        pdCtx.si = Math.round(p.savings * game.rules.savingsInterestRate);
+        let totalDebt = p.loans.reduce((sum, l) => sum + l.amount, 0);
+        pdCtx.li = Math.round(totalDebt * game.rules.loanInterestRate);
+
+        document.getElementById('pd-name').textContent = p.name;
+        document.getElementById('pd-sal').textContent = pdCtx.sal;
+        document.getElementById('pd-si').textContent = pdCtx.si;
+        document.getElementById('pd-li').textContent = pdCtx.li;
+        
+        // Alertes prêts
+        let urgent = p.loans.filter(l => l.months <= 1).length;
+        document.getElementById('pd-loan-warnings').innerHTML = urgent > 0 ? 
+            `<div class="loan-tag loan-urgent" style="display:block; text-align:center;">⚠️ ${urgent} tranche(s) de prêt à rembourser d'urgence !</div>` : '';
+
+        updatePdSummary();
+        document.getElementById('payday-modal').classList.add('active');
+    }
+
+    function updatePdSummary() {
+        let rep = parseInt(document.getElementById('pd-repayment').value) || 0;
+        // Bilan billets = Salaire + Intérêts épargne - Intérêts prêt - Remboursement
+        let total = pdCtx.sal + pdCtx.si - pdCtx.li - rep;
+        document.getElementById('pd-summary').textContent = total > 0 ? `Donnez ${total} ${game.rules.currency}` : `Réclamez ${Math.abs(total)} ${game.rules.currency}`;
+        pdCtx.final = total;
+    }
+
+    function finishPayday() {
+        let p = game.players.find(x=>x.id===curPid);
+        let rep = parseInt(document.getElementById('pd-repayment').value) || 0;
+        
+        // 1. On décrémente les mois de TOUS les prêts
+        p.loans.forEach(l => l.months--);
+
+        // 2. Traitement du remboursement
+        if(rep > 0) {
+            execute(curPid, 'remboursement', rep, "Remboursement Jour de Paye");
+        }
+
+        // 3. Exécution comptable globale
+        execute(curPid, 'payday', pdCtx.final, "Bilan Jour de Paye");
+        
+        closePd();
+    }
+    function closePd() { document.getElementById('payday-modal').classList.remove('active'); }
+
+    function exportData() {
+        const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(game));
+        const link = document.createElement('a');
+        link.setAttribute("href", data);
+        link.setAttribute("download", "banque.json");
+        link.click();
+    }
+</script>
+</body>
+</html>

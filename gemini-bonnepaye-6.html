@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Bonne Paye - Assistant Banquier</title>
+    <style>
+        /* * ==========================================
+         * STYLES CSS (Interface Utilisateur)
+         * ==========================================
+         */
+        :root {
+            --primary: #2563eb;       
+            --primary-hover: #1d4ed8; 
+            --success: #16a34a;       
+            --danger: #dc2626;        
+            --warning: #ca8a04;       
+            --bg: #f8fafc;            
+            --surface: #ffffff;       
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            --border: #e2e8f0;        
+            --radius: 8px;            
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 { margin-bottom: 1rem; }
+        
+        /* Gestion Single Page Application */
+        .screen { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        /* Boutons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-success { background-color: var(--success); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-warning { background-color: var(--warning); }
+        .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-block { display: flex; width: 100%; margin-top: 10px; }
+
+        .player-card { border-left: 5px solid var(--primary); transition: all 0.3s; }
+        
+        /* Style pour un joueur éliminé */
+        .player-eliminated {
+            filter: grayscale(100%);
+            opacity: 0.6;
+            border-left-color: #94a3b8 !important;
+        }
+
+        .balances {
+            display: flex;
+            justify-content: space-around;
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .balance-item { text-align: center; }
+        .balance-value { font-size: 1.5rem; font-weight: bold; }
+        
+        .text-green { color: var(--success); }
+        .text-red { color: var(--danger); }
+        .text-blue { color: var(--primary); }
+        .text-muted { color: var(--text-muted); }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .action-buttons button { flex: 1; min-width: 120px; font-size: 0.9rem; padding: 8px; }
+
+        /* Fenêtres modales */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--surface); padding: 25px; border-radius: var(--radius); width: 90%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+        
+        .log-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        .log-table th, .log-table td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+        .log-table th { background: var(--bg); font-weight: 600; }
+        
+        .summary-box { background: var(--bg); padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; border: 1px solid var(--border); }
+        .badge-info { display: inline-block; background-color: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; margin-left: 5px; }
+        
+        /* Étiquettes de suivi des prêts */
+        .loan-tags-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; justify-content: center;}
+        .loan-tag { display: inline-block; background: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid #f87171; }
+        .loan-urgent { background: #dc2626; color: white; animation: pulse 1.5s infinite; border-color: #991b1b; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        /* Bannière alerte remboursement obligatoire */
+        .alert-banner { background-color: #fef2f2; border-left: 4px solid var(--danger); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="screen-setup" class="screen active">
+        <div class="card">
+            <h1>⚙️ Paramétrage de la partie</h1>
+            <p>L'application agit comme le livre de comptes de la banque. Les billets physiques gèrent le compte courant.</p>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Charger un profil prédéfini (Presets)</label>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline" onclick="applyPreset('francs')">Ancienne version (Francs)</button>
+                    <button type="button" class="btn btn-outline" onclick="applyPreset('euros')">Version récente (Euros)</button>
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+
+            <form id="setup-form">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="currency">Devise (ex: F, €)</label>
+                        <input type="text" id="currency" value="€" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paydaySalary">Salaire du Jour de Paye</label>
+                        <input type="number" id="paydaySalary" value="650" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanUnit">Montant d'une tranche de prêt</label>
+                        <input type="number" id="loanUnit" value="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="savingsInterestRate">Taux intérêt livret (%)</label>
+                        <input type="number" id="savingsInterestRate" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanInterestRate">Taux intérêt prêt (%)</label>
+                        <input type="number" id="loanInterestRate" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="savingsWithdrawalFee">Frais de retrait du livret</label>
+                        <input type="number" id="savingsWithdrawalFee" value="100" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-block btn-success">Valider et Créer les joueurs</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="screen-players" class="screen">
+        <div class="card">
+            <h1>👥 Création des joueurs</h1>
+            
+            <form id="add-player-form" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="playerName" placeholder="Nom du joueur" required style="flex: 1;">
+                <input type="color" id="playerColor" value="#2563eb" style="width: 50px; height: 42px; border: none; cursor: pointer;">
+                <button type="submit" class="btn">Ajouter</button>
+            </form>
+
+            <ul id="players-list" style="list-style: none; margin-bottom: 20px;"></ul>
+
+            <button onclick="startGame()" class="btn btn-block btn-success">Démarrer la partie</button>
+        </div>
+    </div>
+
+    <div id="screen-dashboard" class="screen">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>🏦 Grand Livre de la Banque (<span id="dash-currency"></span>)</h1>
+            <button onclick="exportData()" class="btn btn-outline">💾 Exporter</button>
+        </div>
+
+        <div id="dashboard-players" class="grid-3"></div>
+
+        <div class="card" style="margin-top: 30px;">
+            <h2>📜 Journal des opérations bancaires</h2>
+            <div style="overflow-x: auto;">
+                <table class="log-table" id="operations-log">
+                    <thead>
+                        <tr>
+                            <th>Heure</th>
+                            <th>Joueur</th>
+                            <th>Opération</th>
+                            <th>Mouvement financier (Physique ou Comptable)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="action-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Titre Action</h2>
+            <p id="modal-instruction" style="margin-bottom: 15px; font-weight: bold; color: var(--primary);"></p>
+            <input type="number" id="modal-amount" class="form-group" style="width: 100%; padding: 10px;">
+            <div class="action-buttons">
+                <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-success" onclick="confirmAction()">Valider l'opération</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payday-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>💰 Bilan du Mois</h2>
+            <h3 id="payday-player-name" style="color: var(--primary);">Nom du joueur</h3>
+            
+            <div id="payday-step-1" class="payday-step">
+                <p><strong>1. Salaire</strong> <span class="badge-info">En billets</span></p>
+                <p class="balance-value text-green" id="payday-salary-display">+ 0</p>
+                
+                <p style="margin-top: 15px;"><strong>2. Intérêts d'épargne</strong> <span class="badge-info">En billets</span></p>
+                <p class="text-muted" style="font-size:0.85rem; margin-top:-5px; margin-bottom:5px;">Cette somme est donnée en billets, le capital sur le livret ne bouge pas.</p>
+                <p class="balance-value text-green" id="payday-savings-interest">+ 0</p>
+                
+                <p style="margin-top: 15px;"><strong>3. Intérêts de prêts</strong> <span class="badge-info">En billets</span></p>
+                <p class="text-muted" style="font-size:0.85rem; margin-top:-5px; margin-bottom:5px;">Déduit du salaire. Calculé sur le total de la dette.</p>
+                <p class="balance-value text-red" id="payday-loan-interest">- 0</p>
+                
+                <button class="btn btn-block" style="margin-top: 20px;" onclick="nextPaydayStep(2)">Étape Suivante</button>
+            </div>
+
+            <div id="payday-step-2" class="payday-step" style="display: none;">
+                
+                <div id="payday-mandatory-alert" class="alert-banner" style="display: none;">
+                    <h4 style="color: var(--danger); margin-bottom: 5px;">⚠️ REMBOURSEMENT OBLIGATOIRE</h4>
+                    <p style="font-size: 0.9rem;">Une ou plusieurs tranches de prêt ont atteint la limite des 3 mois. <strong>Le joueur est forcé de rembourser <span id="payday-mandatory-amount"></span> <span class="currency-label"></span> ce mois-ci.</strong></p>
+                </div>
+
+                <p><strong>4. Remboursement (Capital)</strong></p>
+                <p class="text-muted">Combien le joueur rembourse-t-il en billets ?</p>
+                <input type="number" id="payday-repayment-amount" value="0" step="1000" onchange="updatePaydaySummary()" onkeyup="updatePaydaySummary()" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+                
+                <div class="summary-box">
+                    <h3>Bilan net à échanger en billets :</h3>
+                    <p id="payday-summary-text" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;"></p>
+                    <p id="payday-summary-detail" class="text-muted" style="font-size: 0.9rem; font-style: italic;"></p>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 20px;">
+                    <button class="btn btn-outline" onclick="closePaydayModal()">Annuler</button>
+                    <button class="btn btn-danger" id="btn-bankrupt" onclick="eliminatePlayer()" title="Si le joueur ne peut pas payer ses dettes obligatoires">💀 Faillite</button>
+                    <button class="btn btn-success" id="btn-finish-payday" onclick="finishPayday()">Clôturer le mois</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /**
+     * MODÈLE DE DONNÉES GLOBAL
+     */
+    let game = {
+        meta: { title: 'Nouvelle Partie', createdAt: new Date().toISOString(), version: 5 },
+        rules: {
+            currency: '€',
+            paydaySalary: 650,
+            loanUnit: 1000,
+            savingsInterestRate: 0.10, 
+            loanInterestRate: 0.10,    
+            savingsWithdrawalFee: 100
+        },
+        players: [],
+        operations: [],
+        ui: { currentMonth: 1, selectedPlayerId: null, currentAction: null }
+    };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function applyPreset(type) {
+        if (type === 'francs') {
+            document.getElementById('currency').value = 'F';
+            document.getElementById('paydaySalary').value = 6500;
+            document.getElementById('loanUnit').value = 10000;
+            document.getElementById('savingsWithdrawalFee').value = 1000;
+        } else if (type === 'euros') {
+            document.getElementById('currency').value = '€';
+            document.getElementById('paydaySalary').value = 650;
+            document.getElementById('loanUnit').value = 1000;
+            document.getElementById('savingsWithdrawalFee').value = 100;
+        }
+    }
+
+    document.getElementById('setup-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        game.rules.currency = document.getElementById('currency').value;
+        game.rules.paydaySalary = parseInt(document.getElementById('paydaySalary').value, 10);
+        game.rules.loanUnit = parseInt(document.getElementById('loanUnit').value, 10);
+        game.rules.savingsInterestRate = parseFloat(document.getElementById('savingsInterestRate').value) / 100;
+        game.rules.loanInterestRate = parseFloat(document.getElementById('loanInterestRate').value) / 100;
+        game.rules.savingsWithdrawalFee = parseInt(document.getElementById('savingsWithdrawalFee').value, 10);
+        
+        // Mise à jour des labels de devise un peu partout
+        document.querySelectorAll('.currency-label').forEach(el => el.textContent = game.rules.currency);
+        
+        showScreen('screen-players');
+    });
+
+    document.getElementById('add-player-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nameInput = document.getElementById('playerName');
+        const colorInput = document.getElementById('playerColor');
+        
+        const newPlayer = {
+            id: 'player_' + Date.now(),
+            name: nameInput.value,
+            color: colorInput.value,
+            savings: 0, 
+            loans: [], // Nouveau: Tableau des tranches de prêts en cours [{amount: 1000, monthsLeft: 3}]
+            eliminated: false // Statut de faillite
+        };
+        
+        game.players.push(newPlayer);
+        
+        const li = document.createElement('li');
+        li.style.padding = '10px';
+        li.style.borderLeft = `5px solid ${newPlayer.color}`;
+        li.style.backgroundColor = '#fff';
+        li.style.marginBottom = '5px';
+        li.textContent = newPlayer.name;
+        document.getElementById('players-list').appendChild(li);
+        
+        nameInput.value = '';
+    });
+
+    function startGame() {
+        if (game.players.length === 0) {
+            alert("Veuillez ajouter au moins un joueur.");
+            return;
+        }
+        
+        const currencySpan = document.getElementById('dash-currency');
+        if (currencySpan) {
+            currencySpan.textContent = game.rules.currency;
+        }
+        
+        renderDashboard();
+        showScreen('screen-dashboard');
+    }
+
+    /**
+     * MOTEUR D'OPÉRATIONS - Adapté pour gérer les tranches de prêts (loans array)
+     */
+    function executeOperation(playerId, type, amount, customDesc = null) {
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) return;
+
+        let description = customDesc;
+        let financialImpact = "";
+
+        switch (type) {
+            case 'depot':
+                player.savings += amount;
+                description = description || "Dépôt sur livret";
+                financialImpact = `Le banquier encaisse ${amount}${game.rules.currency} en billets.`;
+                break;
+            case 'retrait':
+                player.savings -= (amount + game.rules.savingsWithdrawalFee);
+                description = description || `Retrait livret (Frais: ${game.rules.savingsWithdrawalFee})`;
+                financialImpact = `Le banquier donne ${amount}${game.rules.currency} en billets.`;
+                break;
+            case 'pret':
+                // On découpe le montant total emprunté en unités distinctes de prêt
+                const numberOfUnits = Math.floor(amount / game.rules.loanUnit);
+                for(let i=0; i < numberOfUnits; i++) {
+                    player.loans.push({
+                        amount: game.rules.loanUnit,
+                        monthsLeft: 3 // Durée max imposée par la règle
+                    });
+                }
+                description = description || "Nouveau prêt";
+                financialImpact = `Le banquier donne ${amount}${game.rules.currency} en billets.`;
+                break;
+            case 'remboursement':
+                // Stratégie de remboursement : on solde en priorité les prêts les plus proches de l'échéance
+                let remainingToRepay = amount;
+                // Tri par mois restants ascendant (les plus urgents d'abord)
+                player.loans.sort((a, b) => a.monthsLeft - b.monthsLeft);
+                
+                while (remainingToRepay > 0 && player.loans.length > 0) {
+                    if (player.loans[0].amount <= remainingToRepay) {
+                        remainingToRepay -= player.loans[0].amount;
+                        player.loans.shift(); // Le prêt est totalement remboursé, on le retire
+                    } else {
+                        // Cas rare de remboursement partiel d'une unité
+                        player.loans[0].amount -= remainingToRepay;
+                        remainingToRepay = 0;
+                    }
+                }
+                description = description || "Remboursement de prêt";
+                financialImpact = `Le banquier encaisse ${amount}${game.rules.currency} en billets.`;
+                break;
+            case 'bilan_jour_paye':
+                description = description || "Bilan du mois";
+                if (amount > 0) financialImpact = `Le banquier a donné ${amount}${game.rules.currency} en billets.`;
+                else if (amount < 0) financialImpact = `Le banquier a encaissé ${Math.abs(amount)}${game.rules.currency} en billets.`;
+                else financialImpact = `Échange de billets nul.`;
+                break;
+            case 'faillite':
+                description = description || "Joueure déclaré en faillite";
+                financialImpact = "Éliminé de la partie.";
+                break;
+        }
+
+        const logEntry = {
+            id: Date.now(),
+            time: new Date().toLocaleTimeString(),
+            playerId: playerId,
+            playerName: player.name,
+            desc: description,
+            impact: financialImpact
+        };
+        game.operations.push(logEntry);
+        
+        renderDashboard();
+        renderLogs();
+    }
+
+    /**
+     * RENDU DU TABLEAU DE BORD - Affiche les échéances de prêts
+     */
+    function renderDashboard() {
+        const container = document.getElementById('dashboard-players');
+        const scrollPos = window.scrollY; // Mémorise le scroll
+
+        container.innerHTML = ''; 
+
+        game.players.forEach(player => {
+            const card = document.createElement('div');
+            card.className = 'card player-card';
+            
+            // Gestion visuelle d'un joueur éliminé
+            if (player.eliminated) {
+                card.classList.add('player-eliminated');
+                card.innerHTML = `
+                    <h2>${player.name} <span style="color:var(--danger); font-size:1rem; font-weight:bold;">(FAILLITE)</span></h2>
+                    <p class="text-muted" style="text-align:center; padding: 20px 0;">Ce joueur a été éliminé de la partie.</p>
+                `;
+                container.appendChild(card);
+                return; // On passe au joueur suivant sans afficher les boutons
+            }
+
+            card.style.borderLeftColor = player.color;
+
+            // Calcul de la dette totale en sommant les tranches
+            const totalDebt = player.loans.reduce((sum, loan) => sum + loan.amount, 0);
+
+            // Génération des badges HTML pour chaque tranche de prêt
+            let loansHtml = '';
+            if (player.loans.length > 0) {
+                // On trie pour l'affichage (les plus urgents en premier)
+                const sortedLoans = [...player.loans].sort((a,b) => a.monthsLeft - b.monthsLeft);
+                loansHtml = '<div class="loan-tags-container">';
+                sortedLoans.forEach(l => {
+                    const isUrgent = l.monthsLeft <= 1 ? 'loan-urgent' : '';
+                    loansHtml += `<span class="loan-tag ${isUrgent}" title="${l.amount}${game.rules.currency} dans ${l.monthsLeft} mois">${l.amount}${game.rules.currency} (${l.monthsLeft}m)</span>`;
+                });
+                loansHtml += '</div>';
+            } else {
+                loansHtml = '<div class="loan-tags-container"><span class="text-muted" style="font-size:0.8rem">Aucun prêt en cours</span></div>';
+            }
+
+            card.innerHTML = `
+                <h2>${player.name}</h2>
+                <div class="balances">
+                    <div class="balance-item">
+                        <div class="text-muted" style="font-size:0.8rem">Livret d'Épargne</div>
+                        <div class="balance-value text-green">${player.savings} ${game.rules.currency}</div>
+                    </div>
+                    <div class="balance-item">
+                        <div class="text-muted" style="font-size:0.8rem">Dette (Prêts)</div>
+                        <div class="balance-value text-red">${totalDebt} ${game.rules.currency}</div>
+                    </div>
+                </div>
+                ${loansHtml}
+                <div class="action-buttons">
+                    <button class="btn btn-outline" onclick="openActionModal('${player.id}', 'depot')">📥 Dépôt</button>
+                    <button class="btn btn-outline" onclick="openActionModal('${player.id}', 'retrait')">📤 Retrait</button>
+                    <button class="btn btn-outline" onclick="openActionModal('${player.id}', 'pret')">🏦 Emprunter</button>
+                    <button class="btn btn-outline" onclick="openActionModal('${player.id}', 'remboursement')">💸 Rembourser</button>
+                    <button class="btn btn-success btn-block" style="margin-top:5px" onclick="initPayday('${player.id}')">🗓️ JOUR DE PAYE</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        
+        window.scrollTo(0, scrollPos); // Restaure le scroll
+    }
+
+    function renderLogs() {
+        const tbody = document.querySelector('#operations-log tbody');
+        tbody.innerHTML = '';
+        const reversedLogs = [...game.operations].reverse();
+        reversedLogs.forEach(log => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${log.time}</td>
+                <td><strong>${log.playerName}</strong></td>
+                <td>${log.desc}</td>
+                <td style="font-style: italic;">${log.impact}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    /* GESTION MODALE ACTIONS CLASSIQUES */
+    const actionModal = document.getElementById('action-modal');
+    
+    function openActionModal(playerId, actionType) {
+        game.ui.selectedPlayerId = playerId;
+        game.ui.currentAction = actionType;
+        
+        const titles = {
+            'depot': 'Faire un dépôt',
+            'retrait': 'Retirer du livret',
+            'pret': 'Nouveau Prêt',
+            'remboursement': 'Rembourser la banque'
+        };
+
+        const instructions = {
+            'depot': '👉 Prenez les billets du joueur AVANT de valider.',
+            'retrait': `👉 Le joueur va recevoir le montant saisi. Le livret sera débité du montant + ${game.rules.savingsWithdrawalFee}${game.rules.currency} de frais.`,
+            'pret': `👉 Donnez les billets au joueur APRES avoir validé. Les prêts sont coupés en tranches de ${game.rules.loanUnit}${game.rules.currency}.`,
+            'remboursement': '👉 Prenez les billets du joueur AVANT de valider.'
+        };
+        
+        document.getElementById('modal-title').textContent = titles[actionType];
+        document.getElementById('modal-instruction').textContent = instructions[actionType];
+        
+        const input = document.getElementById('modal-amount');
+        input.value = '';
+        
+        if (actionType === 'pret' || actionType === 'remboursement') {
+            input.step = game.rules.loanUnit;
+            input.min = game.rules.loanUnit;
+            input.value = game.rules.loanUnit;
+        } else {
+            input.step = 10;
+            input.min = 10;
+        }
+
+        actionModal.classList.add('active');
+    }
+
+    function closeModal() {
+        actionModal.classList.remove('active');
+        game.ui.selectedPlayerId = null;
+        game.ui.currentAction = null;
+    }
+
+    function confirmAction() {
+        const amount = parseInt(document.getElementById('modal-amount').value, 10);
+        if (isNaN(amount) || amount <= 0) {
+            alert("Veuillez saisir un montant valide.");
+            return;
+        }
+
+        const player = game.players.find(p => p.id === game.ui.selectedPlayerId);
+
+        if (game.ui.currentAction === 'retrait') {
+            const costOnSavings = amount + game.rules.savingsWithdrawalFee;
+            if (costOnSavings > player.savings) {
+                alert(`Le livret ne contient pas assez. Il faut au minimum ${costOnSavings} (retrait + frais).`);
+                return;
+            }
+        }
+
+        if (game.ui.currentAction === 'remboursement') {
+            const totalDebt = player.loans.reduce((sum, l) => sum + l.amount, 0);
+            if (amount > totalDebt) {
+                alert("Impossible de rembourser plus que la dette existante.");
+                return;
+            }
+        }
+
+        executeOperation(game.ui.selectedPlayerId, game.ui.currentAction, amount);
+        closeModal();
+    }
+
+    /* GESTION MODALE JOUR DE PAYE (Avec contrainte des 3 mois) */
+    let paydayContext = {};
+
+    function initPayday(playerId) {
+        const player = game.players.find(p => p.id === playerId);
+        game.ui.selectedPlayerId = playerId;
+        
+        document.getElementById('payday-player-name').textContent = player.name;
+        
+        // Calcul des bases
+        paydayContext.salary = game.rules.paydaySalary;
+        document.getElementById('payday-salary-display').textContent = `+ ${paydayContext.salary} ${game.rules.currency}`;
+        
+        paydayContext.savingsInterest = Math.round(player.savings * game.rules.savingsInterestRate);
+        document.getElementById('payday-savings-interest').textContent = `+ ${paydayContext.savingsInterest} ${game.rules.currency}`;
+        
+        const totalDebt = player.loans.reduce((sum, l) => sum + l.amount, 0);
+        paydayContext.loanInterest = Math.round(totalDebt * game.rules.loanInterestRate);
+        document.getElementById('payday-loan-interest').textContent = `- ${paydayContext.loanInterest} ${game.rules.currency}`;
+        
+        // IDENTIFICATION DES PRÊTS OBLIGATOIRES À REMBOURSER (Ceux à 1 mois restant ou moins)
+        const mandatoryRepayment = player.loans
+            .filter(l => l.monthsLeft <= 1)
+            .reduce((sum, l) => sum + l.amount, 0);
+            
+        paydayContext.mandatoryRepayment = mandatoryRepayment;
+
+        const repaymentInput = document.getElementById('payday-repayment-amount');
+        repaymentInput.step = game.rules.loanUnit;
+        repaymentInput.max = totalDebt;
+        repaymentInput.disabled = (totalDebt === 0);
+
+        const alertBox = document.getElementById('payday-mandatory-alert');
+
+        if (mandatoryRepayment > 0) {
+            // Un ou plusieurs prêts expirent
+            alertBox.style.display = 'block';
+            document.getElementById('payday-mandatory-amount').textContent = mandatoryRepayment;
+            
+            // On bloque le champ de saisie pour empêcher de rembourser moins que le minimum vital
+            repaymentInput.min = mandatoryRepayment;
+            repaymentInput.value = mandatoryRepayment;
+        } else {
+            alertBox.style.display = 'none';
+            repaymentInput.min = 0;
+            repaymentInput.value = 0;
+        }
+
+        updatePaydaySummary();
+
+        showPaydayStep(1);
+        document.getElementById('payday-modal').classList.add('active');
+    }
+
+    function updatePaydaySummary() {
+        let repaymentAmount = parseInt(document.getElementById('payday-repayment-amount').value, 10) || 0;
+        
+        // Sécurité : forcer le respect du minimum obligatoire visuellement
+        if (repaymentAmount < paydayContext.mandatoryRepayment) {
+            repaymentAmount = paydayContext.mandatoryRepayment;
+            document.getElementById('payday-repayment-amount').value = repaymentAmount;
+        }
+
+        const netCashFlow = paydayContext.salary + paydayContext.savingsInterest - paydayContext.loanInterest - repaymentAmount;
+        paydayContext.netCashFlow = netCashFlow;
+
+        const summaryEl = document.getElementById('payday-summary-text');
+        const detailEl = document.getElementById('payday-summary-detail');
+        
+        detailEl.textContent = `Calcul : Salaire (+${paydayContext.salary}) + Intérêts épargne (+${paydayContext.savingsInterest}) - Intérêts prêt (-${paydayContext.loanInterest}) - Remboursement (-${repaymentAmount}) = ${netCashFlow} ${game.rules.currency}`;
+
+        if (netCashFlow > 0) {
+            summaryEl.textContent = `➡️ Donnez ${netCashFlow} ${game.rules.currency} au joueur.`;
+            summaryEl.style.color = "var(--success)";
+        } else if (netCashFlow < 0) {
+            summaryEl.textContent = `⬅️ Réclamez ${Math.abs(netCashFlow)} ${game.rules.currency} au joueur.`;
+            summaryEl.style.color = "var(--danger)";
+        } else {
+            summaryEl.textContent = `⏸️ Aucun billet à échanger.`;
+            summaryEl.style.color = "var(--text-main)";
+        }
+    }
+
+    function showPaydayStep(step) {
+        document.querySelectorAll('.payday-step').forEach(el => el.style.display = 'none');
+        document.getElementById(`payday-step-${step}`).style.display = 'block';
+    }
+
+    function nextPaydayStep(step) {
+        showPaydayStep(step);
+    }
+
+    function closePaydayModal() {
+        document.getElementById('payday-modal').classList.remove('active');
+        game.ui.selectedPlayerId = null;
+    }
+
+    /**
+     * DÉCLARATION DE FAILLITE
+     * Si le joueur ne peut pas payer ses dettes obligatoires.
+     */
+    function eliminatePlayer() {
+        const player = game.players.find(p => p.id === game.ui.selectedPlayerId);
+        
+        if (confirm(`⚠️ ATTENTION : Vous allez déclarer la faillite de ${player.name}.\n\nLe joueur sera définitivement éliminé de la partie. Cette action est irréversible. Confirmer ?`)) {
+            player.eliminated = true;
+            executeOperation(player.id, 'faillite', 0, "Élimination pour cause de faillite");
+            closePaydayModal();
+        }
+    }
+
+    function finishPayday() {
+        const playerId = game.ui.selectedPlayerId;
+        const player = game.players.find(p => p.id === playerId);
+        const repaymentAmount = parseInt(document.getElementById('payday-repayment-amount').value, 10) || 0;
+
+        const totalDebt = player.loans.reduce((sum, l) => sum + l.amount, 0);
+
+        if (repaymentAmount > totalDebt) {
+            alert("Remboursement supérieur à la dette.");
+            return;
+        }
+
+        if (repaymentAmount < paydayContext.mandatoryRepayment) {
+            alert(`Vous DEVEZ rembourser au moins ${paydayContext.mandatoryRepayment}${game.rules.currency} de prêts arrivés à échéance.`);
+            return;
+        }
+
+        // 1. Exécuter le remboursement pour détruire les unités de prêt soldées
+        if (repaymentAmount > 0) {
+            executeOperation(playerId, 'remboursement', repaymentAmount, "Remboursement du capital (Jour de Paye)");
+        }
+
+        // 2. VIEILLISSEMENT DES PRÊTS RESTANTS : On retire 1 mois à chaque prêt qui n'a pas été remboursé
+        player.loans.forEach(loan => {
+            loan.monthsLeft -= 1;
+        });
+
+        // 3. Trace détaillée du bilan dans le journal
+        let descBilan = `Jour de Paye (Sal: ${paydayContext.salary}`;
+        if (paydayContext.savingsInterest > 0) descBilan += `, Int. Épargne: +${paydayContext.savingsInterest}`;
+        if (paydayContext.loanInterest > 0) descBilan += `, Int. Prêt: -${paydayContext.loanInterest}`;
+        descBilan += `)`;
+
+        executeOperation(playerId, 'bilan_jour_paye', paydayContext.netCashFlow, descBilan);
+
+        closePaydayModal();
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(game, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "banque_bonne_paye_" + Date.now() + ".json");
+        document.body.appendChild(downloadAnchorNode); 
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+</script>
+</body>
+</html>
